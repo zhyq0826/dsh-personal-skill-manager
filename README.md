@@ -1,5 +1,7 @@
 # dsh-personal-skill-manager
 
+简体中文 | [English](./README.en.md)
+
 DeepSeek Harness（DSH）的个人技能管理插件。查看各客户端的技能，收藏社区版本，维护自己的技能，并通过 Git 同步到另一台电脑。
 
 ## 功能
