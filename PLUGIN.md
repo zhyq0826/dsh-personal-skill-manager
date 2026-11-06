@@ -1,4 +1,4 @@
-# @local/skill-hub
+# dsh-personal-skill-manager
 
 A personal skill manager for every code agent on the machine.
 
@@ -154,8 +154,8 @@ Machine-local settings live in `$DSH_HOME/skill-hub/settings.json`; they are not
 committed. The bundle row can supply defaults:
 
 ```yaml
-- id: skill-hub
-  name: '@local/skill-hub'
+- id: dsh-personal-skill-manager
+  name: 'dsh-personal-skill-manager'
   config:
     personalDir: null         # defaults to $DSH_HOME/skills
     customSkillDirs: []

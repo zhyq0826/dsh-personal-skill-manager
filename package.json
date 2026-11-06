@@ -1,11 +1,11 @@
 {
-  "name": "@local/skill-hub",
+  "name": "dsh-personal-skill-manager",
   "version": "0.6.0",
   "private": true,
   "description": "Personal skill library for DeepSeek Harness. Written skills live in skills/ and are distributed; favorites store only community source metadata.",
   "type": "module",
   "license": "MIT",
-  "keywords": ["deepseek-harness", "dsh", "dsh-plugin", "skill", "skills"],
+  "keywords": ["deepseek-harness", "dsh", "dsh-plugin", "skill", "personal"],
   "icon": "icon.svg",
   "exports": {
     ".": "./index.js",

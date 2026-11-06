@@ -11,7 +11,7 @@ import { registerTool } from './lib/tool.js';
 import { distribute, migrateToLibrary } from './lib/targets.js';
 import { gitCommit } from './lib/sync.js';
 
-export const name = 'skill-hub';
+export const name = 'dsh-personal-skill-manager';
 
 export const inject = ['webServer', 'tools', 'sessions', 'workingDirectory'];
 
@@ -27,8 +27,8 @@ export function apply(ctx, config = {}) {
     return () => {
       for (const dispose of disposers.splice(0)) dispose();
     };
-  }, 'skill-hub: routes');
-  ctx.effect(() => registerTool(ctx, resolved), 'skill-hub: tool');
+  }, 'dsh-personal-skill-manager: routes');
+  ctx.effect(() => registerTool(ctx, resolved), 'dsh-personal-skill-manager: tool');
   ctx.effect(() => {
     const config = effectiveConfig(resolved);
     const timer = setTimeout(async () => {
@@ -42,9 +42,9 @@ export function apply(ctx, config = {}) {
         }
       } catch (error) {
         if (typeof ctx.logger?.warn === 'function') ctx.logger.warn(error);
-        else console.warn('[skill-hub] startup distribution failed', error);
+        else console.warn('[dsh-personal-skill-manager] startup distribution failed', error);
       }
     }, 2500);
     return () => clearTimeout(timer);
-  }, 'skill-hub: startup favorite install');
+  }, 'dsh-personal-skill-manager: startup favorite install');
 }

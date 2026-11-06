@@ -1,27 +1,40 @@
-# @local/skill-hub
+# dsh-personal-skill-manager
 
-DeepSeek Harness 的技能库插件。
+DeepSeek Harness（DSH）的个人技能管理插件。查看各客户端的技能，收藏社区版本，维护自己的技能，并通过 Git 同步到另一台电脑。
+
+## 功能
+
+- 扫描 Codex、Claude Code、Cursor、DSH 和共享目录，搜索技能、查看来源与正文。
+- 收藏社区技能，只记录来源和固定版本，换机时重新安装。
+- 保存为我的技能，将内容存入个人仓库，支持创建、编辑和调用开关。
+- 以链接或复制方式分发到客户端，遇到冲突保留原内容，也可备份后替换。
+- 通过 Git 同步个人技能与收藏，支持换机恢复。
+- 提供 `skill_hub` 工具，可在 DSH 对话中管理技能。
+
+## 安装
+
+需要支持插件的 DSH；Git 同步需要本机 Git 和远程仓库权限。
 
 ```bash
-dsh plugin --profile desktop add /Users/sanyuesha/workspace/personal-skill-hub
+dsh plugin --profile desktop add /absolute/path/to/personal-skill-hub
 ```
 
-本机开发安装是指向这个仓库根的符号链接：
+替换为本机仓库路径和实际 profile，安装后打开侧栏的 **技能库**。
 
-```text
-~/.dsh/profiles/desktop/node_modules/@local/skill-hub
-```
+## 使用
 
-## 仓库
+1. 在 **同步** 页设置个人目录、Git 远程仓库、分支和客户端目标。
+2. 找到技能，点击 **收藏** 记录社区版本；需要修改时，先 **保存为我的技能**，再编辑副本。
+3. 将个人技能分发到启用的客户端，检查分发结果。
+4. 点击 **同步个人库** 推送。换机后配置相同仓库，点击 **保存并恢复**。
 
-```text
-package.json          # dsh.bundle + dsh.client
-cordis.patch.yml      # 挂载 Host 行
-index.js              # Host 入口
-client.js             # 浏览器面板
-lib/                  # 扫描、收藏、分发、同步
-locale/               # 插件页文案
-icon.svg
-test/
-PLUGIN.md             # 使用说明
-```
+可选开启启动时分发、编辑后自动提交。自动提交不会推送，仍需手动同步。
+
+## 注意
+
+- 来源未知的收藏不能自动重装。客户端已有不同内容时，默认不覆盖。
+- 编辑会修改当前选中的文件；要保留原文件，请先保存为我的技能。
+- 分发成功不代表客户端已加载，需在对应客户端确认。
+- 设置与备份沿用 `$DSH_HOME/skill-hub/`，仓库元数据沿用 `.skill-hub/`，更名无需迁移数据。
+
+详细配置、数据目录和接口见 [PLUGIN.md](./PLUGIN.md)。开发测试运行 `npm test`。

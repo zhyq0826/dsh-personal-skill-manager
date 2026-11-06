@@ -1,10 +1,10 @@
 window.__ModuleLoader__.load({
-  id: '@local/skill-hub',
+  id: 'dsh-personal-skill-manager',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
 
-    const NS = 'skill-hub';
+    const NS = 'dsh-personal-skill-manager';
     const VERSION = '0.4.0';
     const ENDPOINT = '/api/skill-hub';
 
@@ -2346,30 +2346,30 @@ window.__ModuleLoader__.load({
     function apply(ctx) {
       ctx.effect(
         () => ctx.locale.register(NS, { zh, en }),
-        'skill-hub: dictionaries',
+        'dsh-personal-skill-manager: dictionaries',
       );
       const t = makeTranslator(ctx);
       ctx.effect(
         () => ctx.slots.inject('main', () =>
           ctx.slots.register(
-            { name: 'main', key: 'skill-hub', locale: NS, inject: () => ({ t }) },
+            { name: 'main', key: 'dsh-personal-skill-manager', locale: NS, inject: () => ({ t }) },
             Panel,
           )),
-        'skill-hub: main panel',
+        'dsh-personal-skill-manager: main panel',
       );
       ctx.effect(
         () => ctx.slots.inject('sidebar.panellist', () =>
           ctx.slots.register(
             {
               name: 'sidebar.panellist',
-              id: 'skill-hub',
+              id: 'dsh-personal-skill-manager',
               order: 12,
               locale: NS,
               label: () => t('panel.title'),
             },
             SidebarIcon,
           )),
-        'skill-hub: sidebar entry',
+        'dsh-personal-skill-manager: sidebar entry',
       );
     }
 
