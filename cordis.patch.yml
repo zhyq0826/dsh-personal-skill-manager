@@ -1,0 +1,6 @@
+# Bundle patch: one Host row. The browser half loads from the package's
+# `dsh.client` declaration; the Host row owns the routes and the skill_hub tool.
+- insert:
+    - id: skill-hub
+      name: '@local/skill-hub'
+      config: {}
