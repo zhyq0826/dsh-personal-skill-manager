@@ -18,7 +18,7 @@ A personal skill manager for DeepSeek Harness (DSH). Browse skills across client
 Requires a DSH build with plugin support. Git sync requires Git and access to the remote repository.
 
 ```bash
-dsh plugin --profile desktop add /absolute/path/to/personal-skill-hub
+dsh plugin --profile desktop add /absolute/path/to/dsh-personal-skill-manager
 ```
 
 Replace the path and profile with your local values. After installation, open **Skill library** in the sidebar.

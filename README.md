@@ -18,7 +18,7 @@ DeepSeek Harness（DSH）的个人技能管理插件。查看各客户端的技�
 需要支持插件的 DSH；Git 同步需要本机 Git 和远程仓库权限。
 
 ```bash
-dsh plugin --profile desktop add /absolute/path/to/personal-skill-hub
+dsh plugin --profile desktop add /absolute/path/to/dsh-personal-skill-manager
 ```
 
 替换为本机仓库路径和实际 profile，安装后打开侧栏的 **技能库**。
