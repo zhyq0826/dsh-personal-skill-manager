@@ -977,34 +977,15 @@ window.__ModuleLoader__.load({
       );
     }
 
-    function SidebarIcon({ size = 18, active = false }) {
-      const accent = active ? 'var(--dsw-alias-brand-primary)' : 'currentColor';
-      return h(
-        'svg',
-        {
-          width: size,
-          height: size,
-          viewBox: '0 0 24 24',
-          fill: 'none',
-          'aria-hidden': true,
-        },
-        h('path', {
-          d: 'M4 6.5A2.5 2.5 0 0 1 6.5 4H11a2 2 0 0 1 2 2v13a2.5 2.5 0 0 0-2.5-2.5H4z',
-          stroke: accent,
-          strokeWidth: 1.5,
-          strokeLinejoin: 'round',
-        }),
-        h('path', {
-          d: 'M20 6.5A2.5 2.5 0 0 0 17.5 4H13a2 2 0 0 0-2 2v13a2.5 2.5 0 0 1 2.5-2.5H20z',
-          stroke: accent,
-          strokeWidth: 1.5,
-          strokeLinejoin: 'round',
-        }),
-        h('path', {
-          d: 'm12 7.2.9 1.8 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2L9.1 9.3l2-.3z',
-          fill: accent,
-          opacity: .9,
-        }),
+    function SidebarIcon({ size = 18 }) {
+      return h('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': true, style: { display: 'block', flexShrink: 0 } },
+        h('g', { stroke: 'var(--dsw-alias-label-primary, currentColor)', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' },
+          h('path', {"d": "M5.25 19.25V6.75a2.5 2.5 0 0 1 2.5-2.5h8.5a2.5 2.5 0 0 1 2.5 2.5v4.1"}),
+          h('path', {"d": "M7.8 8.1h5.7", "stroke": "var(--dsw-alias-label-secondary, currentColor)"}),
+          h('path', {"d": "M7.8 11.1h3.7", "stroke": "var(--dsw-alias-label-secondary, currentColor)"}),
+          h('path', {"d": "M17.15 13.2c.45 2.08 1.48 3.11 3.55 3.55-2.07.45-3.1 1.48-3.55 3.55-.44-2.07-1.47-3.1-3.55-3.55 2.08-.44 3.11-1.47 3.55-3.55Z"}),
+          h('path', {"d": "M20.8 11.1c.18.84.6 1.26 1.45 1.44-.85.19-1.27.61-1.45 1.46-.18-.85-.6-1.27-1.45-1.46.85-.18 1.27-.6 1.45-1.44Z"}),
+        ),
       );
     }
 

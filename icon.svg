@@ -1,6 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Skill library">
-  <rect x="4" y="4" width="56" height="56" rx="14" fill="#123a5f"/>
-  <path d="M18 18.5A3.5 3.5 0 0 1 21.5 15H30a4 4 0 0 1 4 4v27a5 5 0 0 0-5-5H18z" fill="none" stroke="#d9ecff" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M46 18.5A3.5 3.5 0 0 0 42.5 15H34a4 4 0 0 0-4 4v27a5 5 0 0 1 5-5h11z" fill="none" stroke="#d9ecff" stroke-width="3" stroke-linejoin="round"/>
-  <path d="m32 22 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z" fill="#f4b740"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">技能</title>
+  <desc id="desc">卡片轮廓与右下角星芒，表示个人技能</desc>
+  <style>
+    .outline { stroke: #20252B; }
+    .detail { stroke: #647383; }
+    .spark { fill: #F8F9FA; }
+    @media (prefers-color-scheme: dark) {
+      .outline { stroke: #E8EDF4; }
+      .detail { stroke: #A9B7C9; }
+      .spark { fill: none; }
+    }
+  </style>
+  <g class="outline" stroke="#20252B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5.25 19.25V6.75a2.5 2.5 0 0 1 2.5-2.5h8.5a2.5 2.5 0 0 1 2.5 2.5v4.1"/>
+    <path d="M7.8 8.1h5.7" class="detail" stroke="#647383"/>
+    <path d="M7.8 11.1h3.7" class="detail" stroke="#647383"/>
+    <path d="M17.15 13.2c.45 2.08 1.48 3.11 3.55 3.55-2.07.45-3.1 1.48-3.55 3.55-.44-2.07-1.47-3.1-3.55-3.55 2.08-.44 3.11-1.47 3.55-3.55Z" class="spark" fill="#F8F9FA"/>
+    <path d="M20.8 11.1c.18.84.6 1.26 1.45 1.44-.85.19-1.27.61-1.45 1.46-.18-.85-.6-1.27-1.45-1.46.85-.18 1.27-.6 1.45-1.44Z" class="spark" fill="#F8F9FA"/>
+  </g>
 </svg>
