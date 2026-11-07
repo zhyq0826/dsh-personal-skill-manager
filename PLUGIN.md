@@ -203,3 +203,23 @@ real agent directories or a network remote.
 - The frontmatter parser is smaller than YAML; DSH remains the authority for
   whether a skill loads.
 - The panel is loopback-only; paired remote access is not implemented.
+
+## Plugin inventory
+
+The Plugins tab and `skill_hub` action `plugins` provide a separate read-only inventory for Codex, Claude Code, Cursor and DSH. `GET /api/skill-hub/plugins` exposes the same data.
+
+- Claude Code, Cursor and Codex adapters read `installed_plugins.json` when present, plus manifests in plugin cache and local directories. Cache-only entries are not labelled installed. Marketplace listings are excluded.
+- DSH profiles list direct dependencies whose installed package declares `dsh`. A dependency does not prove that its host row is enabled.
+- Rows retain client, plugin identifier, version, scope, path and evidence file. Same-named plugins from different clients, versions or scopes remain separate.
+- Enablement and loading remain unknown. Missing files and unreadable records are reported. Cursor's internal installation state and Codex configuration-based activation are not verified by this adapter.
+- This does not enumerate editor extensions, install plugins, modify settings, or copy plugin skills into the personal library.
+
+Plugin favorites are stored in `.skill-hub/plugins.json` and travel with the personal Git repository. The list has a star button and a favorites-only filter. `POST /api/skill-hub/plugins/favorite` accepts `{key, favorite}` behind the same write guards as skills. Favorites retain client, plugin identifier, version and evidence category, without machine-local paths. Different clients and known versions remain separate. Unknown versions use an observation-specific key rather than being merged. On another machine, missing favorites remain visible as not observed. This feature does not install or enable plugins and does not claim that an identifier alone guarantees reinstallability.
+
+## Plugin installation prompts
+
+Expand a plugin, choose a target client, and click Generate install prompt. Copy the generated request into an Agent conversation. It includes the plugin identifier, version, source client and local path when available. Missing local files do not prevent generating a request from a saved favorite.
+
+The request asks the Agent to verify the source, version and target support, propose adaptation when needed, preserve existing changes, request confirmation for model charges or consequential changes, and report the actual loading result. Generating or copying the prompt does not install anything, write target files, create an adaptation task, or call a model. The panel no longer provides delivery previews or model-task controls.
+
+The previous delivery and adaptation backend remains available to existing callers; generating a prompt does not use it.

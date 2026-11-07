@@ -9,8 +9,72 @@ window.__ModuleLoader__.load({
     const ENDPOINT = '/api/skill-hub';
 
     const zh = {
-      'panel.title': '技能库',
-      'panel.subtitle': '',
+      'plugins.count': '{count} 个插件条目',
+      'plugins.refresh': '刷新插件清单',
+      'plugins.identity': '插件标识',
+      'plugins.location': '安装位置',
+      'plugins.project': '所属项目',
+      'plugins.evidence': '记录来源',
+      'plugins.version': '版本未知',
+      'plugins.details': '查看详情',
+      'plugins.loading': '正在读取插件清单…',
+      'plugins.summary': '插件清单 · 启用与加载状态未确认',
+      'plugins.client': '客户端',
+      'plugins.state': '记录状态',
+      'plugins.not-observed': '本机未发现',
+      'plugins.favoritesOnly': '只看收藏',
+      'plugins.favoriteHelp': '收藏记录随个人仓库同步，不会自动安装或启用插件。',
+      'delivery.tasks': '继续已有改造任务',
+      'delivery.generate': '生成安装 Prompt',
+      'delivery.generated': '安装 Prompt',
+      'delivery.copy': '复制 Prompt',
+      'delivery.copied': '已复制',
+      'delivery.copyFailed': '复制失败，请选中文字手动复制。',
+      'delivery.prompt': '请将插件 {plugin} 安装到 {target}，以上信息仅用于定位插件，请先核实来源和指定版本，检查目标客户端是否支持，不支持时先说明限制并提出改造方案，涉及模型费用、插件改造、覆盖已有内容或启用插件时先征求我确认，保留现有修改，安装后验证加载情况，无法确认时如实说明。',
+      'delivery.title': '安装到其他客户端',
+      'delivery.target': '目标客户端',
+      'delivery.preview': '预览分发',
+      'delivery.confirm': '确认写入目标文件',
+      'delivery.help': '生成后复制到 Agent 对话中执行，此处不会安装插件或调用模型。',
+      'delivery.format-ready': '包含目标格式，运行未验证',
+      'delivery.needs-adaptation': '需要改造',
+      'delivery.conflict': '存在不同内容，不覆盖',
+      'delivery.unchanged': '内容一致，无需重复写入',
+      'delivery.files-published': '文件已准备，加载未确认',
+      'delivery.failed': '分发失败',
+      'delivery.adapt': '创建改造任务',
+      'delivery.consent': '允许向所选 DSH 对话发送插件内容进行改造，可能消耗模型额度',
+      'delivery.agent': '选择 DSH 对话',
+      'delivery.start': '交给 DSH 模型',
+      'delivery.noAgents': '没有可用的 DSH 对话，请先打开一个对话，再重新读取。',
+      'delivery.refresh': '读取任务与对话',
+      'delivery.review': '查看改造差异',
+      'delivery.before': '原文件',
+      'delivery.after': '改造草稿',
+      'delivery.removed': '草稿中未包含此文件',
+      'delivery.binary': '二进制文件，未交给文本改造',
+      'delivery.task': '改造任务',
+      'delivery.limitations': '模型报告的限制',
+      'delivery.commands': '后续由客户端安装或加载，以下命令不会自动执行',
+      'delivery.manifestOnly': '仅校验文件路径和目标清单，不代表功能兼容。请检查代码和能力变化。',
+      'delivery.queued': '任务已提交，回复与错误请到所选 DSH 对话查看。',
+      'delivery.prepared': '等待确认发送模型',
+      'delivery.draft': '草稿已生成，待审阅',
+      'delivery.dispatch-uncertain': '发送结果未确认，请先检查所选对话，不自动重试',
+      'delivery.reviewed': '我已检查改造差异与限制，允许预览分发',
+      'delivery.error': '操作未完成',
+      'delivery.emptyFile': '文件不存在',
+      'plugins.title': '插件',
+      'plugins.help': '独立读取各客户端的插件记录。缓存和本地目录不代表已安装，启用与加载状态未确认。',
+      'plugins.empty': '未发现插件记录或清单。未发现不代表没有安装。',
+      'plugins.recorded': '有安装记录',
+      'plugins.cache-only': '仅发现缓存',
+      'plugins.local-directory': '发现本地目录',
+      'plugins.missing': '安装文件缺失',
+      'plugins.unknown': '启用 / 加载未确认',
+      'plugins.warnings': '部分记录不可读或格式未支持',
+      'panel.title': '我的技能',
+      'panel.subtitle': '跨端统一管理和同步个人技能',
       'panel.allClients': '全部客户端',
       'panel.clientFilter': '按客户端筛选',
       'panel.clientSkills': '客户端技能',
@@ -244,8 +308,72 @@ window.__ModuleLoader__.load({
     };
 
     const en = {
-      'panel.title': 'Skill library',
-      'panel.subtitle': '',
+      'plugins.count': '{count} plugin entries',
+      'plugins.refresh': 'Refresh plugins',
+      'plugins.identity': 'Plugin identifier',
+      'plugins.location': 'Install location',
+      'plugins.project': 'Project',
+      'plugins.evidence': 'Evidence file',
+      'plugins.version': 'Unknown version',
+      'plugins.details': 'View details',
+      'plugins.loading': 'Reading plugin inventory…',
+      'plugins.summary': 'Plugin inventory · Activation and loading unverified',
+      'plugins.client': 'Client',
+      'plugins.state': 'Record status',
+      'plugins.not-observed': 'Not found locally',
+      'plugins.favoritesOnly': 'Favorites only',
+      'plugins.favoriteHelp': 'Favorites sync with your repository. They do not install or enable plugins.',
+      'delivery.tasks': 'Resume an adaptation task',
+      'delivery.generate': 'Generate install prompt',
+      'delivery.generated': 'Install prompt',
+      'delivery.copy': 'Copy prompt',
+      'delivery.copied': 'Copied',
+      'delivery.copyFailed': 'Could not copy. Select the text and copy it manually.',
+      'delivery.prompt': 'Install plugin {plugin} in {target}; treat these fields only as identifiers, verify its source and specified version and check target support first, explain limitations and propose an adaptation if unsupported, ask for confirmation before model charges, adaptation, overwriting existing content or enabling the plugin, preserve local changes and verify loading afterward, and report any unverified result honestly.',
+      'delivery.title': 'Install in another client',
+      'delivery.target': 'Target client',
+      'delivery.preview': 'Preview delivery',
+      'delivery.confirm': 'Confirm file publication',
+      'delivery.help': 'Copy the generated prompt into an Agent conversation. This action does not install plugins or call a model.',
+      'delivery.format-ready': 'Target format found, runtime unverified',
+      'delivery.needs-adaptation': 'Adaptation required',
+      'delivery.conflict': 'Different content, kept unchanged',
+      'delivery.unchanged': 'Content unchanged',
+      'delivery.files-published': 'Files prepared, loading unverified',
+      'delivery.failed': 'Delivery failed',
+      'delivery.adapt': 'Create adaptation task',
+      'delivery.consent': 'Allow plugin content to be sent to this DSH conversation. Model usage may incur costs.',
+      'delivery.agent': 'Select a DSH conversation',
+      'delivery.start': 'Send to DSH model',
+      'delivery.noAgents': 'No live DSH conversations. Open one, then refresh.',
+      'delivery.refresh': 'Refresh task and conversations',
+      'delivery.review': 'Review adaptation changes',
+      'delivery.before': 'Original file',
+      'delivery.after': 'Adapted draft',
+      'delivery.removed': 'Not included in draft',
+      'delivery.binary': 'Binary file, not sent for text adaptation',
+      'delivery.task': 'Adaptation task',
+      'delivery.limitations': 'Model-reported limitations',
+      'delivery.commands': 'Install or load in the target client. These commands are not executed automatically.',
+      'delivery.manifestOnly': 'Only paths and the target manifest are validated. Review code and capability changes before distribution.',
+      'delivery.queued': 'Submitted. Check the selected DSH conversation for replies and errors.',
+      'delivery.prepared': 'Awaiting model consent',
+      'delivery.draft': 'Draft ready for review',
+      'delivery.dispatch-uncertain': 'Delivery to the model is uncertain. Check the conversation before retrying.',
+      'delivery.reviewed': 'I reviewed the draft and limitations; allow a delivery preview',
+      'delivery.error': 'Operation did not complete',
+      'delivery.emptyFile': 'File absent',
+      'plugins.title': 'Plugins',
+      'plugins.help': 'Plugin inventory across clients. Cache and local folders do not prove installation. Activation and loading are unverified.',
+      'plugins.empty': 'No plugin records or manifests found. This does not prove no plugins are installed.',
+      'plugins.recorded': 'Installation recorded',
+      'plugins.cache-only': 'Cache only',
+      'plugins.local-directory': 'Local directory found',
+      'plugins.missing': 'Installed files missing',
+      'plugins.unknown': 'Activation / loading unverified',
+      'plugins.warnings': 'Some records are unreadable or unsupported',
+      'panel.title': 'My skills',
+      'panel.subtitle': 'Manage and sync personal skills across clients',
       'panel.allClients': 'All clients',
       'panel.clientFilter': 'Filter by client',
       'panel.clientSkills': 'Client skills',
@@ -479,6 +607,15 @@ window.__ModuleLoader__.load({
     };
 
     const css = [
+      '.skh-plugin-item{position:relative;padding-right:30px}.skh-plugin-star{position:absolute;right:5px;top:15px;z-index:1}.skh-plugin-star[aria-pressed=true]{color:var(--dsw-alias-brand-primary)}.skh-plugin-star:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:3px}',
+      '.skh-plugins{flex:1;min-width:0;overflow:auto;padding:20px 24px 32px}',
+      '.skh-plugins-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.skh-plugins-heading{display:flex;align-items:center;gap:10px}.skh-plugins h2{margin:0;font-size:16px;font-weight:600;letter-spacing:-.02em}.skh-plugins-head p{margin:5px 0 0;font-size:11px;color:var(--dsw-alias-label-secondary)}.skh-plugins-count{font-size:11px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}.skh-plugins-head .skh-btn{padding:6px}',
+      '.skh-plugin-columns,.skh-plugin-summary{display:grid;grid-template-columns:minmax(160px,1fr) 104px minmax(116px,auto) 14px;align-items:center;gap:16px}.skh-plugin-columns{padding:0 12px 8px;font-size:10px;color:var(--dsw-alias-label-secondary);border-bottom:1px solid var(--dsw-alias-border-l1)}',
+      '.skh-plugin-row{border-bottom:1px solid var(--dsw-alias-border-l1)}.skh-plugin-summary{list-style:none;padding:13px 12px;cursor:pointer;border-radius:5px;transition:background .12s}.skh-plugin-summary::-webkit-details-marker{display:none}.skh-plugin-summary:hover{background:var(--dsw-alias-bg-layer-2)}.skh-plugin-summary:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px}.skh-plugin-name{display:flex;gap:10px;align-items:center;min-width:0}.skh-plugin-name .skh-mark{width:16px;height:16px;flex:none}.skh-plugin-label{min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 9px}.skh-plugin-label strong{font-size:12px;font-weight:600;overflow-wrap:anywhere}.skh-plugin-version{font-size:10px;color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.skh-plugin-client{font-size:11px;color:var(--dsw-alias-label-secondary)}',
+      '.skh-plugin-states{display:flex;gap:5px;flex-wrap:wrap}.skh-plugin-state{border:1px solid var(--dsw-alias-border-l1);border-radius:4px;padding:2px 6px;font-size:10px;line-height:1.5;color:var(--dsw-alias-label-secondary)}.skh-plugin-state.is-recorded{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2)}.skh-plugin-state.is-missing{border-style:dashed}.skh-plugin-chevron{font-size:19px;color:var(--dsw-alias-label-secondary);transition:transform .15s;text-align:center}.skh-plugin-row[open] .skh-plugin-chevron{transform:rotate(90deg)}',
+      '.skh-plugin-expanded{padding:0 12px 16px 38px}.skh-plugin-description{font-size:12px;line-height:1.7;margin:0 0 12px;max-width:70ch}.skh-plugin-expanded dl{margin:0;display:grid;gap:9px}.skh-plugin-field{display:grid;grid-template-columns:80px minmax(0,1fr);gap:12px;font-size:11px}.skh-plugin-field dt{color:var(--dsw-alias-label-secondary)}.skh-plugin-field dd{margin:0;min-width:0}.skh-plugin-field code{font-family:ui-monospace,monospace;font-size:10px;line-height:1.7;overflow-wrap:anywhere;user-select:text}.skh-plugin-footnote{font-size:10px;color:var(--dsw-alias-label-secondary);margin-top:13px}.skh-plugin-empty{padding:40px 12px;color:var(--dsw-alias-label-secondary);font-size:12px}',
+      '@media(max-width:640px){.skh-plugins{padding:16px 12px}.skh-plugin-columns{display:none}.skh-plugin-summary{grid-template-columns:minmax(0,1fr) auto 12px;gap:8px;padding:12px 6px}.skh-plugin-client{display:none}.skh-plugin-label{display:block}.skh-plugin-version{display:block;margin-top:2px}.skh-plugin-states{max-width:116px}.skh-plugin-expanded{padding-left:32px}.skh-plugin-field{grid-template-columns:1fr;gap:2px}.skh-plugins-head p{max-width:34ch}}',
+      '@media(prefers-reduced-motion:reduce){.skh-plugin-summary,.skh-plugin-chevron{transition:none}}',
       '.skh-root{height:100%;min-height:0;display:flex;flex-direction:column;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font-size:13px;line-height:1.5}',
       '.skh-root *{box-sizing:border-box}',
       '.skh-header{display:flex;align-items:flex-start;gap:12px;padding:14px 16px 8px;flex:none}',
@@ -615,6 +752,8 @@ window.__ModuleLoader__.load({
       '@media (max-width:1100px){.skh-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.skh-stat:nth-child(3n){border-right:none}}',
       '@media (max-width:820px){.skh-body{grid-template-columns:1fr}.skh-list{border-right:none;border-bottom:1px solid var(--dsw-alias-border-l1);max-height:45%}.skh-detail{padding:14px}}',
       '@media (prefers-reduced-motion:reduce){.skh-spin{animation-duration:2.4s}}',
+      '.skh-body.skh-body-plugins{display:flex;min-width:0;overflow:hidden}.skh-plugins{width:100%;max-width:100%;overflow-x:hidden;overflow-y:auto;container-type:inline-size}.skh-plugin-item,.skh-plugin-row,.skh-plugin-list,.skh-plugin-expanded{min-width:0;max-width:100%}.skh-plugins-head>div{min-width:0}.skh-plugins-head p,.skh-plugin-description{overflow-wrap:anywhere}.skh-plugins-heading{flex-wrap:wrap}.skh-plugin-columns,.skh-plugin-summary{grid-template-columns:minmax(0,1fr) 92px minmax(0,145px) 14px}.skh-plugin-states{min-width:0;overflow-wrap:anywhere}.skh-plugin-delivery{border-top:1px solid var(--dsw-alias-border-l1);margin-top:14px;padding-top:12px;min-width:0}.skh-plugin-delivery h4{font-size:12px;margin:0 0 6px}.skh-plugin-delivery code{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:10px;margin:5px 0;user-select:text}.skh-plugin-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.skh-plugin-actions select{width:auto;max-width:100%}.skh-plugin-preview{background:var(--dsw-alias-bg-layer-2);border:1px solid var(--dsw-alias-border-l1);border-radius:6px;padding:10px;margin-top:10px;min-width:0;overflow-wrap:anywhere;font-size:11px}.skh-plugin-preview .skh-btn{margin:6px 6px 0 0}.skh-plugin-preview select{max-width:100%}.skh-plugin-file-diff{border-top:1px solid var(--dsw-alias-border-l1);margin-top:10px;padding-top:8px}.skh-plugin-file-diff pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;font-size:10px}.skh-plugin-delivery .skh-check{align-items:flex-start;font-size:11px;white-space:normal}.skh-plugin-delivery .skh-check input{flex:none}',
+      '@container(max-width:560px){.skh-plugin-columns{display:none}.skh-plugin-summary{grid-template-columns:minmax(0,1fr) minmax(0,110px) 12px;gap:8px}.skh-plugin-client{display:none}.skh-plugin-label{display:block}.skh-plugin-version{display:block}.skh-plugin-field{grid-template-columns:1fr;gap:2px}.skh-plugin-expanded{padding-left:8px}}',
     ].join('\n');
 
     function messageOf(error) {
@@ -688,7 +827,7 @@ window.__ModuleLoader__.load({
         } catch {
           text = key;
         }
-        if (typeof text !== 'string' || text === '') text = key;
+        if (typeof text !== 'string') text = key;
         if (vars !== undefined) {
           for (const [name, value] of Object.entries(vars)) {
             text = text.replaceAll(`{${name}}`, String(value));
@@ -792,7 +931,7 @@ window.__ModuleLoader__.load({
       codex:
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="#10a37f" d="M6.13671 5.82399V4.30398C6.13671 4.17596 6.18431 4.07991 6.29527 4.01598L9.32406 2.256C9.73637 2.01602 10.228 1.90406 10.7353 1.90406C12.6382 1.90406 13.8434 3.3921 13.8434 4.97604C13.8434 5.088 13.8434 5.21602 13.8274 5.34404L10.6877 3.488C10.4975 3.37605 10.3071 3.37605 10.1168 3.488L6.13671 5.82399ZM13.209 11.7441V8.11195C13.209 7.88789 13.1138 7.72791 12.9236 7.61594L8.94344 5.27995L10.2437 4.5279C10.3547 4.46397 10.4499 4.46397 10.5609 4.5279L13.5896 6.28789C14.4619 6.79996 15.0484 7.88789 15.0484 8.94385C15.0484 10.1598 14.335 11.28 13.209 11.7441ZM5.20114 8.54404L3.90086 7.77608C3.78989 7.71215 3.7423 7.6161 3.7423 7.48808V3.96811C3.7423 2.25615 5.04259 0.960061 6.80278 0.960061C7.46883 0.960061 8.08714 1.18413 8.61056 1.58409L5.48672 3.40816C5.29649 3.52012 5.20129 3.68011 5.20129 3.90418L5.20114 8.54404ZM7.99999 10.176L6.13671 9.12005V6.8801L7.99999 5.82414L9.8631 6.8801V9.12005L7.99999 10.176ZM9.19719 15.0401C8.53113 15.0401 7.91282 14.816 7.3894 14.4161L10.5132 12.5919C10.7034 12.48 10.7987 12.3201 10.7987 12.096V7.45596L12.1149 8.22392C12.2258 8.28785 12.2734 8.3839 12.2734 8.51192V12.0319C12.2734 13.7438 10.9572 15.0401 9.19719 15.0401ZM5.43898 11.4721L2.41018 9.71211C1.53796 9.20003 0.95134 8.11211 0.95134 7.05615C0.95134 5.82414 1.68077 4.72016 2.80657 4.25611V7.9041C2.80657 8.12817 2.90177 8.28815 3.092 8.40012L7.05637 10.72L5.75609 11.4721C5.64513 11.5361 5.54993 11.5361 5.43898 11.4721ZM5.26465 14.0961C3.47278 14.0961 2.15658 12.736 2.15658 11.056C2.15658 10.928 2.17249 10.8 2.18826 10.672L5.3121 12.4961C5.50234 12.608 5.69273 12.608 5.88297 12.4961L9.8631 10.1762V11.6962C9.8631 11.8242 9.8155 11.9202 9.70454 11.9841L6.67574 13.7441C6.26344 13.9841 5.77199 14.0961 5.26465 14.0961ZM9.19719 16C11.1159 16 12.7174 14.624 13.0823 12.8C14.8582 12.3359 16 10.6559 16 8.944C16 7.82396 15.5243 6.73603 14.668 5.95201C14.7473 5.61598 14.7949 5.27995 14.7949 4.94407C14.7949 2.65612 12.9554 0.944002 10.8305 0.944002C10.4025 0.944002 9.99013 1.00794 9.57782 1.15201C8.86416 0.447988 7.88099 0 6.80278 0C4.88403 0 3.28254 1.37593 2.91768 3.19999C1.14173 3.66404 0 5.34404 0 7.056C0 8.17604 0.475669 9.26397 1.33197 10.048C1.25269 10.384 1.20509 10.72 1.20509 11.0559C1.20509 13.3438 3.04456 15.0559 5.16946 15.0559C5.59753 15.0559 6.00984 14.9921 6.42215 14.848C7.13565 15.552 8.11882 16 9.19719 16Z"/></svg>',
       claude:
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#D97757" fill-rule="evenodd" d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z"/></svg>',
+        '<svg fill="#D97757" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Claude</title><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg>',
       cursor:
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#1e1e20" fill-rule="evenodd" d="M22.106 5.68L12.5.135a.998.998 0 00-.998 0L1.893 5.68a.84.84 0 00-.419.726v11.186c0 .3.16.577.42.727l9.607 5.547a.999.999 0 00.998 0l9.608-5.547a.84.84 0 00.42-.727V6.407a.84.84 0 00-.42-.726zm-.603 1.176L12.228 22.92c-.063.108-.228.064-.228-.061V12.34a.59.59 0 00-.295-.51l-9.11-5.26c-.107-.062-.063-.228.062-.228h18.55c.264 0 .428.286.296.514z"/></svg>',
       agents:
@@ -1813,6 +1952,99 @@ window.__ModuleLoader__.load({
       );
     }
 
+    function pluginInstallPrompt(plugin, target, t) {
+      const names = { cursor: 'Cursor', claude: 'Claude Code', codex: 'Codex', dsh: 'DSH' };
+      const reference = JSON.stringify({ name: plugin.name, identifier: plugin.pluginId, version: plugin.version ?? 'unknown', sourceClient: names[plugin.client] ?? plugin.client, localPath: plugin.path ?? null });
+      return t('delivery.prompt', { plugin: reference, target: names[target] ?? target });
+    }
+
+    function PluginDistribution({ plugin, t }) {
+      const [target, setTarget] = React.useState(plugin.client === 'cursor' ? 'claude' : 'cursor');
+      const [prompt, setPrompt] = React.useState('');
+      const [copied, setCopied] = React.useState(false);
+      const [error, setError] = React.useState('');
+      return h('section', { className: 'skh-plugin-delivery', 'aria-label': t('delivery.title') },
+        h('h4', null, t('delivery.title')),
+        h('p', { className: 'skh-note' }, t('delivery.help')),
+        h('div', { className: 'skh-plugin-actions' },
+          h('select', { className: 'skh-input', 'aria-label': t('delivery.target'), value: target, onChange: e => { setTarget(e.target.value); setPrompt(''); setCopied(false); setError(''); } },
+            ...[['cursor','Cursor'],['claude','Claude Code'],['codex','Codex'],['dsh','DSH']].map(([id,name]) => h('option', { key: id, value: id }, name))),
+          h('button', { className: 'skh-btn', onClick: () => { setPrompt(pluginInstallPrompt(plugin, target, t)); setCopied(false); setError(''); } }, t('delivery.generate'))),
+        prompt ? h('div', { className: 'skh-plugin-preview' },
+          h('textarea', { className: 'skh-input', rows: 5, readOnly: true, value: prompt, 'aria-label': t('delivery.generated'), style: { width: '100%', resize: 'vertical', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', font: 'inherit', fontSize: 12 } }),
+          h('button', { className: 'skh-btn', onClick: async () => { try { await navigator.clipboard.writeText(prompt); setCopied(true); setError(''); } catch { setError(t('delivery.copyFailed')); } } }, t(copied ? 'delivery.copied' : 'delivery.copy')),
+          copied ? h('span', { role: 'status', className: 'skh-note' }, t('delivery.copied')) : null) : null,
+        error ? h('p', { role: 'alert' }, error) : null,
+      );
+    }
+
+    function PluginsPanel({ t, query, clientFilter }) {
+      const [inventory, setInventory] = React.useState();
+      const [error, setError] = React.useState('');
+      const [revision, setRevision] = React.useState(0);
+      const [loading, setLoading] = React.useState(true);
+      const [favoritesOnly, setFavoritesOnly] = React.useState(false);
+      const [saving, setSaving] = React.useState(false);
+      const toggleFavorite = async plugin => {
+        setSaving(true); setError('');
+        try {
+          await request('/plugins/favorite', { method: 'POST', body: { key: plugin.favoriteKey, favorite: !plugin.favorite } });
+          setRevision(n => n + 1);
+        } catch (e) { setError(String(e.message)); }
+        finally { setSaving(false); }
+      };
+      React.useEffect(() => {
+        let current = true;
+        setError('');
+        setLoading(true);
+        request('/plugins').then(value => { if (current) setInventory(value); })
+          .catch(e => { if (current) setError(String(e.message)); })
+          .finally(() => { if (current) setLoading(false); });
+        return () => { current = false; };
+      }, [revision]);
+      const rows = (inventory?.plugins ?? []).filter(p => (!favoritesOnly || p.favorite) && (clientFilter === 'all' || clientFilter === p.client) &&
+        [p.name, p.description, p.pluginId, p.version, p.path, p.scope, p.projectPath].some(v => String(v ?? '').toLowerCase().includes(query.toLowerCase())));
+      const clientNames = { claude: 'Claude Code', cursor: 'Cursor', codex: 'Codex', dsh: 'DSH' };
+      const field = (label, value) => value ? h('div', { className: 'skh-plugin-field' }, h('dt', null, label), h('dd', null, h('code', null, value))) : null;
+      return h('section', { className: 'skh-plugins', 'aria-label': t('plugins.title'), 'aria-busy': loading },
+        h('div', { className: 'skh-plugins-head' },
+          h('div', null, h('div', { className: 'skh-plugins-heading' }, h('h2', null, t('plugins.title')),
+            inventory ? h('span', { className: 'skh-plugins-count', role: 'status' }, t('plugins.count', { count: rows.length })) : null),
+            h('p', null, t('plugins.summary')), h('p', null, t('plugins.favoriteHelp'))),
+          h('button', { className: 'skh-btn', disabled: loading, title: t('plugins.refresh'), 'aria-label': t('plugins.refresh'), onClick: () => setRevision(n => n + 1) }, h(IconRefresh))),
+        h('label', { className: 'skh-check', style: { marginBottom: 12 } }, h('input', { type: 'checkbox', checked: favoritesOnly, onChange: e => setFavoritesOnly(e.target.checked) }), t('plugins.favoritesOnly')),
+        error ? h('p', { className: 'skh-status skh-status-error', role: 'alert' }, error) : null,
+        loading ? h('p', { className: 'skh-note', role: 'status' }, t('plugins.loading')) : null,
+        inventory?.warnings.length ? h('p', { className: 'skh-status skh-status-warn', role: 'status' }, t('plugins.warnings')) : null,
+        inventory && rows.length === 0 && !loading ? h('div', { className: 'skh-plugin-empty' }, t('plugins.empty')) : null,
+        rows.length ? h('div', { className: 'skh-plugin-columns', 'aria-hidden': true },
+          h('span', null, t('plugins.title')), h('span', null, t('plugins.client')), h('span', null, t('plugins.state')), h('span')) : null,
+        h('div', { className: 'skh-plugin-list' }, ...rows.map(p => h('div', { key: p.id, className: 'skh-plugin-item' },
+          h('button', { className: 'skh-icon-btn skh-plugin-star', disabled: saving || loading, title: t(p.favorite ? 'detail.unfavorite' : 'detail.favorite'), 'aria-label': t(p.favorite ? 'detail.unfavorite' : 'detail.favorite') + ' ' + p.name, 'aria-pressed': p.favorite === true, onClick: () => toggleFavorite(p) }, h(IconStar, { filled: p.favorite })),
+          h('details', { className: 'skh-plugin-row' },
+          h('summary', { className: 'skh-plugin-summary', title: t('plugins.details') },
+            h('div', { className: 'skh-plugin-name' }, h(ClientMark, { id: p.client }),
+              h('div', { className: 'skh-plugin-label' }, h('strong', null, p.name),
+                h('span', { className: 'skh-plugin-version', title: p.version ?? t('plugins.version') }, p.version ?? t('plugins.version')))),
+            h('span', { className: 'skh-plugin-client' }, clientNames[p.client] ?? p.client),
+            h('div', { className: 'skh-plugin-states' },
+              h('span', { className: 'skh-plugin-state ' + (p.installation === 'recorded' ? 'is-recorded' : '') }, t('plugins.' + p.installation)),
+              p.files === 'missing' ? h('span', { className: 'skh-plugin-state is-missing' }, t('plugins.missing')) : null),
+            h('span', { className: 'skh-plugin-chevron', 'aria-hidden': true }, '›')),
+          h('div', { className: 'skh-plugin-expanded' },
+            p.description ? h('p', { className: 'skh-plugin-description' }, p.description) : null,
+            h('dl', null,
+              field(t('plugins.identity'), p.pluginId),
+              field(t('plugins.location'), p.path),
+              field(t('plugins.project'), p.projectPath),
+              field(t('plugins.evidence'), p.evidence)),
+            h('div', { className: 'skh-plugin-footnote' }, p.scope ? p.scope + ' · ' : '', t('plugins.unknown')),
+            h(PluginDistribution, { plugin: p, t }),
+          ),
+        )))),
+      );
+    }
+
     function Panel({ t }) {
       const [data, setData] = React.useState(undefined);
       const [loading, setLoading] = React.useState(true);
@@ -2238,6 +2470,7 @@ window.__ModuleLoader__.load({
           [
             ['all', t('panel.allSkills')],
             ['library', t('panel.mySkills')],
+            ['plugins', t('plugins.title')],
           ].map(([key, label]) =>
             h(
               'button',
@@ -2254,7 +2487,7 @@ window.__ModuleLoader__.load({
             ),
           ),
         ),
-        h(
+        filter === 'plugins' && mode === 'browse' ? null : h(
           'div',
           { className: 'skh-stats' },
           [
@@ -2328,9 +2561,9 @@ window.__ModuleLoader__.load({
         status,
         h(
           'div',
-          { className: 'skh-body' },
-          h('aside', { className: 'skh-list' }, listContent),
-          h('section', { className: 'skh-detail' }, detailContent),
+          { className: filter === 'plugins' && mode === 'browse' ? 'skh-body skh-body-plugins' : 'skh-body' },
+          filter === 'plugins' && mode === 'browse' ? h(PluginsPanel, { t, query, clientFilter }) : h('aside', { className: 'skh-list' }, listContent),
+          filter === 'plugins' && mode === 'browse' ? null : h('section', { className: 'skh-detail' }, detailContent),
         ),
         t('footer.note') === '' && t('footer.rule') === ''
           ? null

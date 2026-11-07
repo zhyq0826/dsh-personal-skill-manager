@@ -178,3 +178,28 @@ test('favoriting a client-only skill records a catalog source without copying co
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+
+test('plugin favorites route requires write header and persists metadata', async () => {
+  const { root, config, routes } = setup();
+  try {
+    const body = { key: 'a'.repeat(64), favorite: false };
+    const denied = await invoke(routes, '/api/skill-hub/plugins/favorite', { method: 'POST', body });
+    assert.equal(denied.status, 403);
+    const saved = await invoke(routes, '/api/skill-hub/plugins/favorite', { method: 'POST', headers: { 'x-skill-hub': '1' }, body });
+    assert.equal(saved.status, 200);
+    assert.equal(saved.body.favorite, false);
+    assert.ok(fs.existsSync(path.join(config.personalDir, '.skill-hub/plugins.json')));
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
+
+
+test('plugin distribution and model dispatch routes require the same write guard', async () => {
+  const { root, routes } = setup();
+  try {
+    for (const suffix of ['preview','apply','adapt','adapt/start']) {
+      const response = await invoke(routes, '/api/skill-hub/plugins/' + suffix, { method: 'POST', body: {} });
+      assert.equal(response.status, 403);
+    }
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});

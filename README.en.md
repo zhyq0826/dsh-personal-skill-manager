@@ -13,6 +13,12 @@ A personal skill manager for DeepSeek Harness (DSH). Browse skills across client
 - Sync personal skills and favorites through Git and restore them on another computer.
 - Manage skills in DSH conversations with the `skill_hub` tool.
 
+The Plugins tab lists plugins separately for each client. Installation records, cached bundles, and local directories are distinguished. Activation and loading are unverified.
+
+Plugin favorites sync with your personal repository. Use the favorites-only filter to find them; favoriting does not install or enable plugins.
+
+Choose a target client and copy a generated plugin installation prompt into an Agent conversation. The Agent can check installation options or propose adaptations. Generating a prompt does not install plugins or call a model.
+
 ## Installation
 
 Requires a DSH build with plugin support. Git sync requires Git and access to the remote repository.
@@ -40,3 +46,26 @@ Startup distribution and automatic local commits after edits are optional. Autom
 - Settings and backups remain under `$DSH_HOME/skill-hub/`, and repository metadata remains under `.skill-hub/`. The plugin rename requires no data migration.
 
 See [PLUGIN.md](./PLUGIN.md) for configuration, data locations, and API details. Run `npm test` for development tests.
+
+## npm installation and publishing
+
+Once published to npm, install by package name:
+
+```bash
+dsh plugin --profile desktop add dsh-personal-skill-manager
+```
+
+Publish with the npm account `zhyq0826`. The package name remains `dsh-personal-skill-manager`, without an account scope.
+
+```bash
+npm run pack:check
+npm login --registry=https://registry.npmjs.org/
+npm whoami --registry=https://registry.npmjs.org/  # Expected: zhyq0826
+npm publish
+```
+
+Tests run before publishing. Update the version in `package.json` for each release. Author metadata does not authenticate the account or establish ownership of the package name.
+
+## License
+
+[Apache-2.0](./LICENSE).

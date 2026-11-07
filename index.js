@@ -13,7 +13,7 @@ import { gitCommit } from './lib/sync.js';
 
 export const name = 'dsh-personal-skill-manager';
 
-export const inject = ['webServer', 'tools', 'sessions', 'workingDirectory'];
+export const inject = ['webServer', 'tools', 'sessions', 'workingDirectory', 'agents'];
 
 /**
  * Mount the library routes and the model-facing tool.

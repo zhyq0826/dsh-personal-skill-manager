@@ -1,11 +1,17 @@
 {
   "name": "dsh-personal-skill-manager",
   "version": "0.6.0",
-  "private": true,
   "description": "Personal skill library for DeepSeek Harness. Written skills live in skills/ and are distributed; favorites store only community source metadata.",
   "type": "module",
-  "license": "MIT",
-  "keywords": ["deepseek-harness", "dsh", "dsh-plugin", "skill", "personal"],
+  "license": "Apache-2.0",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "skill",
+    "skills",
+    "personal"
+  ],
   "icon": "icon.svg",
   "exports": {
     ".": "./index.js",
@@ -20,10 +26,15 @@
     "locale",
     "cordis.patch.yml",
     "icon.svg",
-    "README.md"
+    "README.md",
+    "README.en.md",
+    "PLUGIN.md",
+    "LICENSE"
   ],
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "prepublishOnly": "npm test",
+    "pack:check": "npm pack --dry-run"
   },
   "dsh": {
     "bundle": {
@@ -38,5 +49,22 @@
         "@deepseek-ai/dsh-client-ui-sidebar"
       ]
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhyq0826/dsh-personal-skill-manager.git"
+  },
+  "homepage": "https://github.com/zhyq0826/dsh-personal-skill-manager#readme",
+  "bugs": {
+    "url": "https://github.com/zhyq0826/dsh-personal-skill-manager/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "tag": "latest"
+  },
+  "author": {
+    "name": "zhyq0826",
+    "url": "https://www.npmjs.com/~zhyq0826"
   }
 }

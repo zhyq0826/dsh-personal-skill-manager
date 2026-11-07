@@ -13,6 +13,12 @@ DeepSeek Harness（DSH）的个人技能管理插件。查看各客户端的技�
 - 通过 Git 同步个人技能与收藏，支持换机恢复。
 - 提供 `skill_hub` 工具，可在 DSH 对话中管理技能。
 
+插件页单独列出各客户端的插件，区分安装记录、缓存和本地目录；启用与加载状态未确认。
+
+插件支持收藏与只看收藏；记录随个人仓库同步，不会自动安装或启用。
+
+选择目标客户端，生成并复制插件安装 Prompt，交给 Agent 核实安装方式或提出改造方案。生成 Prompt 不会安装插件或调用模型。
+
 ## 安装
 
 需要支持插件的 DSH；Git 同步需要本机 Git 和远程仓库权限。
@@ -40,3 +46,26 @@ dsh plugin --profile desktop add /absolute/path/to/dsh-personal-skill-manager
 - 设置与备份沿用 `$DSH_HOME/skill-hub/`，仓库元数据沿用 `.skill-hub/`，更名无需迁移数据。
 
 详细配置、数据目录和接口见 [PLUGIN.md](./PLUGIN.md)。开发测试运行 `npm test`。
+
+## npm 安装与发布
+
+发布到 npm 后，可按包名安装：
+
+```bash
+dsh plugin --profile desktop add dsh-personal-skill-manager
+```
+
+发布账号为 `zhyq0826`，包名保持 `dsh-personal-skill-manager`，不添加账号前缀。
+
+```bash
+npm run pack:check
+npm login --registry=https://registry.npmjs.org/
+npm whoami --registry=https://registry.npmjs.org/  # 确认输出 zhyq0826
+npm publish
+```
+
+发布前会自动运行测试。新版本需先更新 `package.json` 的版本号；账号名写入配置不代表已经登录或拥有该包名。
+
+## 许可证
+
+[Apache-2.0](./LICENSE)。
