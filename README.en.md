@@ -10,4 +10,4 @@ In **Sync**, choose the clients you use and select **Distribute to clients** to 
 
 ## Move to another computer
 
-On the original computer, open **Sync**, set the personal library directory, Git remote, and branch, then select **Sync personal library**. On the new computer, choose a local directory, enter the same remote and branch, and select **Save and restore** to recover your skills and favorites.
+On the original computer, open **Sync**, save the personal library directory, Git remote, and branch, then select **Sync personal library**. On the new computer, save the local directory, remote, and branch, then select **Restore from Git** under **Restore on another computer** to recover your skills and favorites.

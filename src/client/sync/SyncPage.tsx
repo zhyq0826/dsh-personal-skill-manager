@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { messageOf, request } from '../api';
+import { LocalClients } from './LocalClients';
 import { Badge } from '../components/Controls';
+import { distributionNotice } from './distribution';
 
 function syncFormFrom(status) {
   return {
@@ -23,6 +25,7 @@ function whenText(iso) {
 }
 
 export function SyncPanel({ t, onBack, onChanged }) {
+  const [view, setView] = React.useState('libraryView');
   const [status, setStatus] = React.useState(undefined);
   const [form, setForm] = React.useState(undefined);
   const [busy, setBusy] = React.useState(false);
@@ -79,6 +82,10 @@ export function SyncPanel({ t, onBack, onChanged }) {
       setLast(result);
       if (result !== undefined && typeof result === 'object' && typeof result.error === 'string') {
         setError(t('sync.actionFailed', { error: result.error }));
+      } else if (path === '/distribute') {
+        const message = distributionNotice(result, form.targets, t);
+        if (result.failed || result.conflicts) setError(message);
+        else setNotice(message);
       } else {
         setNotice(t(successKey));
       }
@@ -95,7 +102,7 @@ export function SyncPanel({ t, onBack, onChanged }) {
   };
 
   if (status === undefined || form === undefined) {
-    return <div className="skh-empty-detail">{error === '' ? t('sync.loading') : error}</div>;
+    return <div className="skh-empty-detail"><button type="button" className="skh-btn" onClick={onBack}>{t('sync.back')}</button><p role="status">{error || t('sync.loading')}</p></div>;
   }
 
   const set = (field) => (event) => {
@@ -111,10 +118,13 @@ export function SyncPanel({ t, onBack, onChanged }) {
       ),
     }));
   };
-  const stateLabel = (state) => t(`sync.state.${state}`);
+  const unsaved = JSON.stringify(form) !== JSON.stringify(syncFormFrom(status));
+  const remote = status.settings.gitRemote || '';
+  const hasRemote = Boolean(remote);
+  const repoName = remote.split(/[/:\\]/).filter(Boolean).pop()?.replace(/\.git$/, '') || remote;
   const repo = status.repo;
   const favorites = status.manifest.favorites;
-  const summary = last ?? status.lastRestore;
+  const summary = last ?? (view === 'clientsView' ? status.lastRestore : undefined);
   const summaryResults = Array.isArray(summary?.results) ? summary.results : [];
   const summaryIsCounts = typeof summary?.installed === 'number';
   const summaryIsDistribution = typeof summary?.linked === 'number';
@@ -140,16 +150,7 @@ export function SyncPanel({ t, onBack, onChanged }) {
     if (summary.reason !== undefined) summaryLines.push(`${t('sync.reason')}: ${String(summary.reason)}`);
   }
 
-  return (
-    <div className="skh-sync">
-      <div className="skh-detail-head">
-        <div className="skh-detail-title">{t('sync.title')}</div>
-        <button type="button" className="skh-btn" onClick={onBack} disabled={busy}>
-          {t('sync.back')}
-        </button>
-      </div>
-      {t('sync.help') === '' ? null : <p className="skh-note">{t('sync.help')}</p>}
-      {error !== '' ? (
+  const feedback = error !== '' ? (
         <div className="skh-status skh-status-error" role="alert">
           {error}
         </div>
@@ -157,11 +158,87 @@ export function SyncPanel({ t, onBack, onChanged }) {
         <div className="skh-status skh-status-notice" role="status">
           {notice}
         </div>
-      ) : null}
-      <div className="skh-sync-card">
+      ) : null;
+  const results = summary !== undefined && summary !== null ? (
+          <details className="skh-sync-card">
+            <summary>
+              {summary.at === undefined
+                ? t('sync.operationDetails')
+                : `${t('sync.lastRestore')}: ${whenText(summary.at)}`}
+            </summary>
+            {summaryLines.map((line, index) => (
+              <div className="skh-help" key={`line-${index}`}>
+                {line}
+              </div>
+            ))}
+            {summaryResults.length === 0 ? null : (
+              <div className="skh-sync-results">
+                <div className="skh-help">{t('sync.resultsTitle')}</div>
+                {summaryResults.slice(0, 20).map((result, index) => (
+                  <div className="skh-sync-result-row" key={`${result.name}-${index}`}>
+                    <span className="skh-name">{result.name}</span>
+                    <span className="skh-help">{result.state}</span>
+                    {result.error ? <span className="skh-help">{result.error}</span> : null}
+                  </div>
+                ))}
+              </div>
+            )}
+          </details>
+        ) : null;
+  const saveSettings = (
+    <div className="skh-actions">
+      <button type="button" className="skh-btn" disabled={busy || !unsaved}
+        onClick={() => run('/settings', { ...form, restore: false }, 'sync.saved')}>{t('sync.save')}</button>
+      {unsaved && <button type="button" className="skh-btn" disabled={busy}
+        onClick={() => setForm(syncFormFrom(status))}>{t('sync.cancelSettings')}</button>}
+    </div>
+  );
+  const canLeave = () => !unsaved || window.confirm(t('sync.discardOnLeave'));
+  const switchView = (next) => {
+    if (next === view || !canLeave()) return;
+    if (unsaved) setForm(syncFormFrom(status));
+    setView(next);
+    setNotice('');
+    setError('');
+    setLast(undefined);
+  };
+
+  return (
+    <div className="skh-sync">
+      <header className="skh-sync-heading">
+        <h1>{t('panel.sync')}</h1>
+        <button type="button" className="skh-btn" disabled={busy} onClick={() => { if (canLeave()) onBack(); }}>{t('sync.back')}</button>
+      </header>
+      <nav className="skh-tabs" aria-label={t('panel.sync')}>
+        {['libraryView', 'clientsView', 'recovery'].map((item) => (
+          <button type="button" key={item} aria-pressed={item === view} disabled={busy}
+            className={item === view ? 'skh-tab skh-tab-active' : 'skh-tab'} onClick={() => switchView(item)}>
+            {t(`sync.${item}`)}
+          </button>
+        ))}
+      </nav>
+      {unsaved && <div className="skh-note">{t('sync.unsaved')}</div>}
+      {view !== 'libraryView' && feedback}
+      {view === 'libraryView' && <>
+        <section className="skh-sync-overview">
+          <div>
+            <h2>{t('sync.repo')}</h2>
+            <p className="skh-repo-location">{hasRemote ? `${repoName} · ${status.settings.gitBranch}` : t('sync.setupHint')}</p>
+            {repo.isRepo && <Badge tone={repo.dirty ? 'warn' : 'muted'}>{t(repo.dirty ? 'sync.repoDirty' : 'sync.repoClean')}</Badge>}
+          </div>
+          <button type="button" className={hasRemote ? 'skh-btn skh-btn-primary' : 'skh-btn'} disabled={busy || unsaved}
+            onClick={() => run('/sync', {}, hasRemote ? 'sync.synced' : 'sync.localDone')}>
+            {t(hasRemote ? 'sync.syncNow' : 'sync.localCommit')}
+          </button>
+        </section>
+        {feedback}
+        {results}
+        <details className="skh-sync-card" key="git-settings" open={!hasRemote || undefined}>
+          <summary>{t('sync.gitSettings')}</summary>
         <div className="skh-sync-title">{t('sync.personalDir')}</div>
         <input
           className="skh-input"
+          aria-label={t('sync.personalDir')}
           value={form.personalDir}
           placeholder={status.personalDir}
           onChange={set('personalDir')}
@@ -176,6 +253,7 @@ export function SyncPanel({ t, onBack, onChanged }) {
         </div>
         <input
           className="skh-input"
+          aria-label={t('sync.gitRemote')}
           value={form.gitRemote}
           placeholder="git@github.com:you/skills.git"
           onChange={set('gitRemote')}
@@ -187,6 +265,7 @@ export function SyncPanel({ t, onBack, onChanged }) {
           <span className="skh-sync-title">{t('sync.branch')}</span>
           <input
             className="skh-input skh-branch"
+            aria-label={t('sync.branch')}
             value={form.gitBranch}
             onChange={set('gitBranch')}
             disabled={busy}
@@ -194,201 +273,14 @@ export function SyncPanel({ t, onBack, onChanged }) {
           />
         </div>
         <label className="skh-check">
-          <input
-            type="checkbox"
-            checked={form.autoDistribute}
-            onChange={set('autoDistribute')}
-            disabled={busy}
-          />
-          <span>{t('sync.autoDistribute')}</span>
-        </label>
-        <label className="skh-check">
           <input type="checkbox" checked={form.autoSync} onChange={set('autoSync')} disabled={busy} />
           <span>{t('sync.autoSync')}</span>
         </label>
-        <div className="skh-actions">
-          <button
-            type="button"
-            className="skh-btn skh-btn-primary"
-            disabled={busy}
-            onClick={() => run('/settings', { ...form, restore: true }, 'sync.restored')}
-          >
-            {busy ? <span className="skh-spin" /> : null}
-            {t('sync.saveRestore')}
-          </button>
-          <button
-            type="button"
-            className="skh-btn"
-            disabled={busy}
-            onClick={() => run('/settings', { ...form, restore: false }, 'sync.saved')}
-          >
-            {t('sync.save')}
-          </button>
-          <button
-            type="button"
-            className="skh-btn"
-            disabled={busy}
-            onClick={() => run('/sync', {}, 'sync.synced')}
-          >
-            {t('sync.syncNow')}
-          </button>
-          <button
-            type="button"
-            className="skh-btn"
-            disabled={busy}
-            onClick={() => run('/restore', {}, 'sync.restored')}
-          >
-            {t('sync.restore')}
-          </button>
-          <button
-            type="button"
-            className="skh-btn"
-            disabled={busy}
-            onClick={() => run('/distribute', {}, 'sync.distributed')}
-          >
-            {t('sync.distribute')}
-          </button>
-          <button
-            type="button"
-            className="skh-btn"
-            disabled={busy}
-            onClick={() => run('/distribute', { replaceConflicts: true }, 'sync.distributed')}
-          >
-            {t('sync.distributeReplace')}
-          </button>
-        </div>
-      </div>
-      <div className="skh-sync-card">
-        <div className="skh-sync-title">{t('sync.repo')}</div>
-        <div className="skh-sync-row">
-          <Badge tone={repo.isRepo ? 'ok' : 'warn'}>
-            {repo.isRepo ? t('sync.repoYes') : t('sync.repoNo')}
-          </Badge>
-          {repo.isRepo ? (
-            <Badge tone={repo.dirty ? 'warn' : 'muted'}>
-              {repo.dirty ? t('sync.repoDirty') : t('sync.repoClean')}
-            </Badge>
-          ) : null}
-          <Badge>{t('sync.manifest') + ': ' + status.manifest.count}</Badge>
-        </div>
-        <div className="skh-help">{`${t('sync.remote')}: ${repo.remote || status.settings.gitRemote || t('sync.none')}`}</div>
-        <div className="skh-help">{`${t('sync.personalDir')}: ${status.personalDir}`}</div>
-        {repo.isRepo ? null : <div className="skh-help">{t('sync.firstSyncHint')}</div>}
-      </div>
-      <div className="skh-sync-card">
-        <div className="skh-sync-title">{t('sync.targets')}</div>
-        <div className="skh-help">{t('sync.targetsHelp')}</div>
-        {form.targets.map((target, index) => (
-          <div className="skh-target-row" key={target.id}>
-            <label className="skh-check">
-              <input
-                type="checkbox"
-                checked={target.enabled}
-                onChange={setTarget(index, 'enabled')}
-                disabled={busy}
-              />
-              <span className="skh-name">{target.label}</span>
-            </label>
-            <input
-              className="skh-input"
-              value={target.path}
-              onChange={setTarget(index, 'path')}
-              disabled={busy}
-              spellCheck={false}
-            />
-            <select
-              className="skh-select"
-              value={target.mode}
-              onChange={setTarget(index, 'mode')}
-              disabled={busy}
-            >
-              <option value="link">{t('sync.modeLink')}</option>
-              <option value="copy">{t('sync.modeCopy')}</option>
-            </select>
-          </div>
-        ))}
-        {targetsData !== undefined && targetsData.skills.length > 0 ? (
-          <div className="skh-sync-results">
-            <div className="skh-section-title">{t('detail.targets')}</div>
-            {targetsData.skills.slice(0, 50).map((row) => (
-              <div className="skh-sync-result-row" key={row.name}>
-                <span className="skh-name">{row.name}</span>
-                <span className="skh-help">
-                  {row.targets.map((target) => `${target.label}: ${stateLabel(target.state)}`).join(' · ')}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : null}
-        {targetsData !== undefined && targetsData.discover.length > 0 ? (
-          <div className="skh-sync-result">
-            <div className="skh-section-title">{`${t('sync.targetOnly')} (${targetsData.discover.length})`}</div>
-            {t('sync.targetOnlyHelp') === '' ? null : (
-              <div className="skh-help">{t('sync.targetOnlyHelp')}</div>
-            )}
-            {targetsData.discover.slice(0, 50).map((item) => (
-              <div className="skh-sync-favorite" key={item.name}>
-                <span className="skh-name">{item.name}</span>
-                <span className="skh-help">
-                  {item.targets.map((target) => target.targetLabel).join(' · ')}
-                </span>
-                <button
-                  type="button"
-                  className="skh-btn"
-                  disabled={busy}
-                  onClick={() =>
-                    run(
-                      '/favorite',
-                      { name: item.name, clientId: item.targets[0]?.targetId, value: true },
-                      'notice.favorited',
-                    )
-                  }
-                >
-                  {t('sync.collect')}
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </div>
-      {status.legacyCollected > 0 ? (
-        <div className="skh-sync-card">
-          <div className="skh-sync-title">{`${t('sync.legacyTitle')} (${status.legacyCollected})`}</div>
-          <div className="skh-help">{t('sync.legacyHelp')}</div>
-          <div className="skh-actions">
-            <button
-              type="button"
-              className="skh-btn"
-              disabled={busy}
-              onClick={() => run('/cleanup-legacy', {}, 'sync.legacyCleaned')}
-            >
-              {t('sync.cleanupLegacy')}
-            </button>
-          </div>
-        </div>
-      ) : null}
-      <div className="skh-sync-card">
-        <div className="skh-sync-title">{`${t('sync.catalog')} · ${status.catalog?.count ?? 0} · ${t('sync.installable')} ${status.catalog?.installable ?? 0}`}</div>
-        <div className="skh-help">{t('sync.catalogHelp')}</div>
-        {(status.catalog?.entries ?? []).slice(0, 50).map((entry) => (
-          <div className="skh-sync-favorite" key={entry.name}>
-            <span className="skh-name">{entry.name}</span>
-            <span className="skh-help">{entry.sourceKind}</span>
-          </div>
-        ))}
-        <div className="skh-actions">
-          <button
-            type="button"
-            className="skh-btn"
-            disabled={busy}
-            onClick={() => run('/install-catalog', {}, 'sync.catalogInstalled')}
-          >
-            {t('sync.installCatalog')}
-          </button>
-        </div>
-      </div>
-      <div className="skh-sync-card">
-        <div className="skh-sync-title">{`${t('sync.manifest')} · ${t('sync.favorites')} ${status.manifest.count} · ${t('sync.installable')} ${status.manifest.installable}`}</div>
+        {!repo.isRepo && <p className="skh-help">{t('sync.firstSyncHint')}</p>}
+        {saveSettings}
+        </details>
+        <details className="skh-sync-card">
+          <summary>{t('sync.libraryContents')} · {status.manifest.count}</summary>
         {favorites.length === 0 ? (
           <div className="skh-help">{t('sync.noFavorites')}</div>
         ) : (
@@ -411,33 +303,64 @@ export function SyncPanel({ t, onBack, onChanged }) {
             ))}
           </div>
         )}
-        {summary !== undefined && summary !== null ? (
-          <div className="skh-sync-result">
-            <div className="skh-section-title">
-              {summary.at === undefined
-                ? t('sync.resultsTitle')
-                : `${t('sync.lastRestore')}: ${whenText(summary.at)}`}
-            </div>
-            {summaryLines.map((line, index) => (
-              <div className="skh-help" key={`line-${index}`}>
-                {line}
-              </div>
-            ))}
-            {summaryResults.length === 0 ? null : (
-              <div className="skh-sync-results">
-                <div className="skh-help">{t('sync.resultsTitle')}</div>
-                {summaryResults.slice(0, 20).map((result, index) => (
-                  <div className="skh-sync-result-row" key={`${result.name}-${index}`}>
-                    <span className="skh-name">{result.name}</span>
-                    <span className="skh-help">{result.state}</span>
-                    {result.error ? <span className="skh-help">{result.error}</span> : null}
-                  </div>
-                ))}
-              </div>
-            )}
+        </details>
+      </>}
+      {view === 'clientsView' && <LocalClients
+        t={t} data={targetsData} form={form} savedTargets={status.settings.targets ?? status.targets ?? []} personalMeta={favorites} busy={busy} unsaved={unsaved}
+        setTarget={setTarget} setAuto={set('autoDistribute')}
+        save={() => run('/settings', { ...form, restore: false }, 'sync.saved')}
+        revert={() => setForm(syncFormFrom(status))}
+        distribute={(replaceConflicts) => run('/distribute', { replaceConflicts }, 'sync.distributed')}
+        favorite={(item) => run('/favorite', { name: item.name, clientId: item.targets[0]?.targetId, value: true }, 'notice.favorited')}
+      />}
+      {view === 'recovery' && <>
+      <div className="skh-sync-card">
+        <div className="skh-section-title">{t('sync.recovery')}</div>
+        <p>{t('sync.recoveryHint')}</p>
+        {!hasRemote && <button type="button" className="skh-btn" onClick={() => switchView('libraryView')}>{t('sync.gitSettings')}</button>}
+        <div className="skh-actions">
+          <button type="button" className="skh-btn" disabled={busy || unsaved || !hasRemote}
+            onClick={() => run('/restore', {}, 'sync.restored')}>
+            {t('sync.restore')}
+          </button>
+        </div>
+        <div className="skh-sync-title">{`${t('sync.catalog')} · ${status.catalog?.count ?? 0} · ${t('sync.installable')} ${status.catalog?.installable ?? 0}`}</div>
+        <div className="skh-help">{t('sync.catalogHelp')}</div>
+        {(status.catalog?.entries ?? []).slice(0, 50).map((entry) => (
+          <div className="skh-sync-favorite" key={entry.name}>
+            <span className="skh-name">{entry.name}</span>
+            <span className="skh-help">{entry.sourceKind}</span>
           </div>
-        ) : null}
+        ))}
+        <div className="skh-actions">
+          <button
+            type="button"
+            className="skh-btn"
+            disabled={busy}
+            onClick={() => run('/install-catalog', {}, 'sync.catalogInstalled')}
+          >
+            {t('sync.installCatalog')}
+          </button>
+        </div>
       </div>
+      {status.legacyCollected > 0 ? (
+        <div className="skh-sync-card">
+          <div className="skh-sync-title">{`${t('sync.legacyTitle')} (${status.legacyCollected})`}</div>
+          <div className="skh-help">{t('sync.legacyHelp')}</div>
+          <div className="skh-actions">
+            <button
+              type="button"
+              className="skh-btn"
+              disabled={busy}
+              onClick={() => run('/cleanup-legacy', {}, 'sync.legacyCleaned')}
+            >
+              {t('sync.cleanupLegacy')}
+            </button>
+          </div>
+        </div>
+      ) : null}
+      </>}
+      {view !== 'libraryView' && results}
     </div>
   );
 }

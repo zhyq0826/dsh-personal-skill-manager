@@ -6,6 +6,7 @@ import { useSkillLibrary } from './useSkillLibrary';
 import { Row } from './SkillRow';
 import { CreateForm } from './CreateSkill';
 import { SyncPanel } from '../sync/SyncPage';
+import { distributionNotice } from '../sync/distribution';
 import { Detail } from './SkillDetail';
 import { PluginsPanel } from '../plugins/PluginsPage';
 import css from '../styles.css';
@@ -96,7 +97,7 @@ export function Panel({ t }) {
           method: 'POST',
           body: { name: skill.name, targetIds: [targetId], replaceConflicts: replace === true },
         }),
-      () => t('notice.distributed'),
+      ({ result }) => distributionNotice(result, skill.targets, t),
       skill.path,
     );
   };
@@ -252,20 +253,16 @@ export function Panel({ t }) {
   }
 
   let detailContent;
-  if (mode === 'sync') {
-    detailContent = (
-      <SyncPanel
-        t={t}
-        onBack={() => setMode('browse')}
-        onChanged={() => {
-          refresh();
-        }}
-      />
-    );
-  } else if (mode === 'create') {
+  if (mode === 'create') {
     detailContent = <CreateForm t={t} busy={busy} onCreate={onCreate} onCancel={() => setMode('browse')} />;
-  } else if (selected === undefined) {
-    detailContent = <div className="skh-empty-detail">{t('detail.select')}</div>;
+  } else if (!filteredSkills.some((skill) => identity(skill) === selectedKey)) {
+    detailContent = (
+      <div className="skh-empty-detail">
+        <p>{filteredSkills.length || !data ? t('detail.select') : t('detail.noResults')}</p>
+        {selected && detail && draft !== detail.content ? <p>{t('detail.hiddenDraft', { name: selected.name })}</p> : null}
+        {query !== '' ? <button type="button" className="skh-btn" onClick={() => setQuery('')}>{t('list.clearSearch')}</button> : null}
+      </div>
+    );
   } else {
     detailContent = (
       <Detail
@@ -309,6 +306,12 @@ export function Panel({ t }) {
   ];
   const selectedClient = clientChoices.find((client) => client.id === clientFilter) ?? clientChoices[0];
 
+  if (mode === 'sync') {
+    return <div className="skh-root"><style>{css}</style><main className="skh-sync-page">
+      <SyncPanel t={t} onBack={() => setMode('browse')} onChanged={() => refresh()} />
+    </main></div>;
+  }
+
   return (
     <div className="skh-root">
       <style>{css}</style>
@@ -330,7 +333,6 @@ export function Panel({ t }) {
             className="skh-btn"
             onClick={() => {
               setMode('sync');
-              setSelectedKey(undefined);
               setNotice('');
               setError('');
             }}
