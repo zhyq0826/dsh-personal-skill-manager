@@ -1,7 +1,8 @@
+import { Button, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives';
 import { isWrittenSkill, isCommunitySkill } from './model';
 import { IconStar, ClientMark } from '../components/Icons';
 
-export function Row({ t, skill, active, busy, onSelect, onFavorite }) {
+export function Row({ t, skill, active, busy, error, onSelect, onFavorite }) {
   const written = isWrittenSkill(skill);
   const community = isCommunitySkill(skill);
   const clients = [];
@@ -39,6 +40,7 @@ export function Row({ t, skill, active, busy, onSelect, onFavorite }) {
         <div className="skh-row-desc" title={skill.description || ''}>
           {skill.description || t('detail.noDescription')}
         </div>
+        {error && <span role="alert" className="skh-inline-error">{error}</span>}
         {shown.length === 0 ? null : (
           <div className="skh-clients" title={clients.map((client) => client.label ?? client.id).join(' · ')}>
             {shown.map((client) => (
@@ -53,10 +55,10 @@ export function Row({ t, skill, active, busy, onSelect, onFavorite }) {
         )}
       </div>
       {written ? null : (
-        <button
+        <Tooltip label={t(community ? 'detail.unfavorite' : 'detail.favorite')} portal side="bottom">
+        <Button size="sm" variant="ghost"
           type="button"
           className={community ? 'skh-star skh-star-on' : 'skh-star'}
-          title={community ? t('detail.unfavorite') : t('detail.favorite')}
           aria-label={community ? t('detail.unfavorite') : t('detail.favorite')}
           aria-pressed={community}
           disabled={busy}
@@ -66,7 +68,8 @@ export function Row({ t, skill, active, busy, onSelect, onFavorite }) {
           }}
         >
           <IconStar filled={community} />
-        </button>
+        </Button>
+        </Tooltip>
       )}
     </div>
   );

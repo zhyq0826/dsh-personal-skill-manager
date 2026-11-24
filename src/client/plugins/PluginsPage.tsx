@@ -1,3 +1,4 @@
+import { Button, Checkbox } from '@deepseek-ai/dsh-client-ui-primitives';
 import * as React from 'react';
 import { request } from '../api';
 import { IconStar, IconRefresh, ClientMark } from '../components/Icons';
@@ -63,8 +64,8 @@ export function PluginDistribution({ plugin, t }) {
             </option>
           ))}
         </select>
-        <button
-          className="skh-btn"
+        <Button
+          size="sm" variant="outline"
           onClick={() => {
             setPrompt(pluginInstallPrompt(plugin, target, t));
             setCopied(false);
@@ -72,7 +73,7 @@ export function PluginDistribution({ plugin, t }) {
           }}
         >
           {t('delivery.generate')}
-        </button>
+        </Button>
       </div>
       {prompt ? (
         <div className="skh-plugin-preview">
@@ -91,8 +92,8 @@ export function PluginDistribution({ plugin, t }) {
               fontSize: 12,
             }}
           />
-          <button
-            className="skh-btn"
+          <Button
+            size="sm" variant="outline"
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(prompt);
@@ -104,7 +105,7 @@ export function PluginDistribution({ plugin, t }) {
             }}
           >
             {t(copied ? 'delivery.copied' : 'delivery.copy')}
-          </button>
+          </Button>
           {copied ? (
             <span role="status" className="skh-note">
               {t('delivery.copied')}
@@ -192,20 +193,17 @@ export function PluginsPanel({ t, query, clientFilter }) {
           <p>{t('plugins.summary')}</p>
           <p>{t('plugins.favoriteHelp')}</p>
         </div>
-        <button
-          className="skh-btn"
+        <Button
+          size="sm" variant="outline"
           disabled={loading}
           title={t('plugins.refresh')}
           aria-label={t('plugins.refresh')}
           onClick={() => setRevision((n) => n + 1)}
         >
           <IconRefresh />
-        </button>
+        </Button>
       </div>
-      <label className="skh-check" style={{ marginBottom: 12 }}>
-        <input type="checkbox" checked={favoritesOnly} onChange={(e) => setFavoritesOnly(e.target.checked)} />
-        {t('plugins.favoritesOnly')}
-      </label>
+      <Checkbox checked={favoritesOnly} onChange={setFavoritesOnly} label={t('plugins.favoritesOnly')} />
       {error ? (
         <p className="skh-status skh-status-error" role="alert">
           {error}

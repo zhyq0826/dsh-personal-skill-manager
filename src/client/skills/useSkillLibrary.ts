@@ -11,9 +11,9 @@ export function useSkillLibrary(
   const [data, setData] = React.useState(undefined);
   const [loading, setLoading] = React.useState(true);
   const [selectedKey, setSelectedKey] = React.useState(undefined);
-  const [detail, setDetail] = React.useState(undefined);
+  const [loaded, setDetail] = React.useState(undefined);
   const [detailLoading, setDetailLoading] = React.useState(false);
-  const [draft, setDraft] = React.useState('');
+  const [drafts, setDrafts] = React.useState(new Map<string, { text: string; digest: string }>());
   const [tick, setTick] = React.useState(0);
   const allSkills = React.useMemo(
     () =>
@@ -30,7 +30,18 @@ export function useSkillLibrary(
     () => allSkills.find((skill) => identity(skill) === selectedKey),
     [allSkills, selectedKey],
   );
-  const selectedIdentity = selected === undefined ? undefined : identity(selected);
+  const file = selected?.path;
+  const detail = loaded?.path === file ? loaded : undefined;
+  const entry = drafts.get(file);
+  const clearDraft = () => setDrafts(previous => {
+    const next = new Map(previous);
+    next.delete(file);
+    return next;
+  });
+  const setDraft = (text: string) => {
+    if (text === detail.content) return clearDraft();
+    setDrafts(previous => new Map(previous).set(file, { text, digest: previous.get(file)?.digest ?? detail.digest }));
+  };
 
   const load = React.useCallback(
     async (selectPath?: string) => {
@@ -76,19 +87,15 @@ export function useSkillLibrary(
       selected.path === null
     ) {
       setDetail(undefined);
-      setDraft('');
       return undefined;
     }
     let cancelled = false;
-    setDetail(undefined);
-    setDraft('');
     setDetailLoading(true);
     setError('');
     request(`/read?name=${encodeURIComponent(selected.name)}&path=${encodeURIComponent(selected.path)}`)
       .then((next) => {
         if (cancelled) return;
         setDetail(next);
-        setDraft(next.content);
       })
       .catch((caught) => {
         if (!cancelled) setError(t('error.read', { error: messageOf(caught) }));
@@ -99,7 +106,7 @@ export function useSkillLibrary(
     return () => {
       cancelled = true;
     };
-  }, [mode, selectedIdentity, tick, t]);
+  }, [mode, file, selected?.name, tick, t]);
 
   const refresh = React.useCallback(
     async (selectPath?: string) => {
@@ -119,7 +126,9 @@ export function useSkillLibrary(
     setSelectedKey,
     detail,
     detailLoading,
-    draft,
+    draft: entry?.text ?? detail?.content ?? '',
+    expectedDigest: entry?.digest ?? detail?.digest,
+    clearDraft,
     setDraft,
     load,
     refresh,

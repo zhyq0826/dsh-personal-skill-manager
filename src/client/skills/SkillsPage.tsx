@@ -1,3 +1,4 @@
+import { Button, Input, Menu } from '@deepseek-ai/dsh-client-ui-primitives';
 import * as React from 'react';
 import { messageOf, request } from '../api';
 import { identity, isWrittenSkill, isCommunitySkill } from './model';
@@ -6,7 +7,6 @@ import { useSkillLibrary } from './useSkillLibrary';
 import { Row } from './SkillRow';
 import { CreateForm } from './CreateSkill';
 import { SyncPanel } from '../sync/SyncPage';
-import { distributionNotice } from '../sync/distribution';
 import { Detail } from './SkillDetail';
 import { PluginsPanel } from '../plugins/PluginsPage';
 import css from '../styles.css';
@@ -21,6 +21,8 @@ export function Panel({ t }) {
   const [clientMenuOpen, setClientMenuOpen] = React.useState(false);
   const [mode, setMode] = React.useState('browse');
   const [busy, setBusy] = React.useState(false);
+  const [favoritePending, setFavoritePending] = React.useState('');
+  const [favoriteError, setFavoriteError] = React.useState({ name: '', message: '' });
 
   const {
     data,
@@ -33,6 +35,8 @@ export function Panel({ t }) {
     detailLoading,
     draft,
     setDraft,
+    expectedDigest,
+    clearDraft,
     load,
     refresh,
   } = useSkillLibrary(mode, t, setError);
@@ -62,19 +66,18 @@ export function Panel({ t }) {
     setSelectedKey(identity(skill));
   };
 
-  const onFavorite = (skill) => {
+  const onFavorite = async (skill) => {
     const clientId = (skill.clients ?? []).find((client) => client.id !== 'library')?.id;
-    const value = isCommunitySkill(skill) ? false : true;
-    run(
-      () =>
-        request('/favorite', {
-          method: 'POST',
-          body: { name: skill.name, clientId, value },
-        }),
-      () =>
-        value ? t('notice.favorited', { name: skill.name }) : t('notice.unfavorited', { name: skill.name }),
-      undefined,
-    );
+    setFavoritePending(skill.name);
+    setFavoriteError({ name: '', message: '' });
+    try {
+      await request('/favorite', { method: 'POST', body: { name: skill.name, clientId, value: !isCommunitySkill(skill) } });
+      await load();
+    } catch (caught) {
+      setFavoriteError({ name: skill.name, message: messageOf(caught) });
+    } finally {
+      setFavoritePending('');
+    }
   };
 
   const onSaveAsMine = (skill) => {
@@ -90,16 +93,12 @@ export function Panel({ t }) {
     );
   };
 
-  const onDistribute = (skill, targetId, replace) => {
-    run(
-      () =>
-        request('/distribute-skill', {
-          method: 'POST',
-          body: { name: skill.name, targetIds: [targetId], replaceConflicts: replace === true },
-        }),
-      ({ result }) => distributionNotice(result, skill.targets, t),
-      skill.path,
-    );
+  const onDistribute = async (skill, targetId, replace) => {
+    const { result } = await request('/distribute-skill', {
+      method: 'POST', body: { name: skill.name, targetIds: [targetId], replaceConflicts: replace === true },
+    });
+    await load();
+    return result;
   };
 
   const onToggleInvocation = (field) => {
@@ -119,9 +118,9 @@ export function Panel({ t }) {
     );
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     if (selected === undefined || detail === undefined) return;
-    run(
+    const saved = await run(
       () =>
         request('/save', {
           method: 'POST',
@@ -130,12 +129,14 @@ export function Panel({ t }) {
             path: selected.path,
             cwd: data?.cwd,
             content: draft,
-            expectedDigest: detail.digest,
+            expectedDigest,
           },
         }),
       () => t('notice.saved'),
       selected.path,
     );
+    if (saved) clearDraft();
+    return Boolean(saved);
   };
 
   const onReset = () => {
@@ -163,7 +164,7 @@ export function Panel({ t }) {
         }),
       () => t('notice.deleted'),
       undefined,
-    );
+    ).then(result => { if (result) clearDraft(); });
   };
 
   const onCreate = async (form) => {
@@ -188,7 +189,16 @@ export function Panel({ t }) {
   const needle = query.trim().toLowerCase();
   const isWritten = isWrittenSkill;
   const isCollected = isCommunitySkill;
+  const listedNames = new Set(allSkills.map((skill) => skill.name));
+  const catalogOnly = (data?.catalog?.entries ?? []).filter((entry) => !listedNames.has(entry.name));
+  const missingFavorites = catalogOnly.filter((entry) =>
+    (clientFilter === 'all' || entry.collectedFrom?.id === clientFilter) &&
+    entry.name.toLowerCase().includes(needle));
+  const showCatalogOnly = filter === 'favorites' && missingFavorites.length > 0;
+  const hasConflict = (skill) => skill.targets?.some((target) => target.state === 'conflict');
   const matchesFilter = (skill) => {
+    if (filter === 'favorites' && !isCollected(skill)) return false;
+    if (filter === 'conflicts' && !hasConflict(skill)) return false;
     if (filter === 'library' && !isWritten(skill) && !isCollected(skill)) return false;
     if (clientFilter !== 'all') return (skill.clientIds ?? []).includes(clientFilter);
     return true;
@@ -207,17 +217,10 @@ export function Panel({ t }) {
           ].some((value) => String(value).toLowerCase().includes(needle));
         });
 
-  const stats = {
-    total: allSkills.length,
-    library: allSkills.filter((skill) => isWritten(skill) || isCollected(skill)).length,
-    written: allSkills.filter(isWritten).length,
-    collected: allSkills.filter(isCollected).length,
-    clients: allSkills.filter((skill) => !isWritten(skill) && !isCollected(skill)).length,
-    conflicts: allSkills.reduce(
-      (sum, skill) => sum + (skill.targets ?? []).filter((target) => target.state === 'conflict').length,
-      0,
-    ),
-  };
+  const libraryCount = allSkills.filter((skill) => isWritten(skill) || isCollected(skill)).length;
+  const conflictCount = allSkills.filter(hasConflict).length;
+  const favoriteCount = allSkills.filter(isCollected).length + catalogOnly.length;
+  const groupLabels = { all: 'panel.allSkills', library: 'panel.mySkills', favorites: 'panel.favorites', conflicts: 'stats.conflicts' };
 
   let listContent;
   if (loading && data === undefined) {
@@ -226,16 +229,16 @@ export function Panel({ t }) {
         <span className="skh-spin" /> {t('list.loading')}
       </div>
     );
-  } else if (filteredSkills.length === 0) {
+  } else if (filteredSkills.length === 0 && !showCatalogOnly) {
     listContent = <div className="skh-empty">{t('list.empty')}</div>;
   } else {
     listContent = (
       <section className="skh-group">
         <div className="skh-group-head">
           <span className="skh-group-title">
-            {filter === 'library' ? t('panel.mySkills') : t('panel.allSkills')}
+            {t(groupLabels[filter] ?? 'panel.allSkills')}
           </span>
-          <span className="skh-group-count">{filteredSkills.length}</span>
+          <span className="skh-group-count">{filteredSkills.length + (showCatalogOnly ? missingFavorites.length : 0)}</span>
         </div>
         {filteredSkills.map((skill) => (
           <Row
@@ -243,10 +246,21 @@ export function Panel({ t }) {
             t={t}
             skill={skill}
             active={identity(skill) === selectedKey}
-            busy={busy}
+            busy={busy || Boolean(favoritePending)}
+            error={favoriteError.name === skill.name ? favoriteError.message : ''}
             onSelect={() => onSelect(skill)}
             onFavorite={() => onFavorite(skill)}
           />
+        ))}
+        {showCatalogOnly && missingFavorites.map((entry) => (
+          <div className="skh-sync-favorite" key={entry.name}>
+            <span className="skh-name">{entry.name}</span>
+            <span className="skh-help">{t('panel.favoriteNotLocal')}</span>
+            {favoriteError.name === entry.name && <span role="alert">{favoriteError.message}</span>}
+            <Button type="button" size="sm" variant="outline" disabled={busy || Boolean(favoritePending)} onClick={() => onFavorite({ ...entry, inCatalog: true })}>
+              {t('detail.unfavorite')}
+            </Button>
+          </div>
         ))}
       </section>
     );
@@ -260,18 +274,20 @@ export function Panel({ t }) {
       <div className="skh-empty-detail">
         <p>{filteredSkills.length || !data ? t('detail.select') : t('detail.noResults')}</p>
         {selected && detail && draft !== detail.content ? <p>{t('detail.hiddenDraft', { name: selected.name })}</p> : null}
-        {query !== '' ? <button type="button" className="skh-btn" onClick={() => setQuery('')}>{t('list.clearSearch')}</button> : null}
+        {query !== '' ? <Button type="button" size="sm" variant="outline" onClick={() => setQuery('')}>{t('list.clearSearch')}</Button> : null}
       </div>
     );
   } else {
     detailContent = (
       <Detail
+        key={selected.path ?? selected.name}
         t={t}
         skill={selected}
         detail={detail}
         draft={draft}
         setDraft={setDraft}
         busy={busy}
+        favoritePending={Boolean(favoritePending)}
         detailLoading={detailLoading}
         onSave={onSave}
         onReset={onReset}
@@ -323,14 +339,39 @@ export function Panel({ t }) {
           </div>
           {t('panel.subtitle') === '' ? null : <div className="skh-subtitle">{t('panel.subtitle')}</div>}
         </div>
+      <div className="skh-toolbar">
+        <Menu open={clientMenuOpen} portal compact selectedId={clientFilter}
+          items={clientChoices.map(client => ({ id: client.id, label: client.label, icon: client.id === 'all' ? undefined : <ClientMark id={client.id} /> }))}
+          onClose={() => setClientMenuOpen(false)} onSelect={id => { setClientFilter(id); setClientMenuOpen(false); }} anchor={
+          <Button
+            type="button"
+            size="sm" variant="outline" className="skh-client-filter-btn"
+            aria-label={t('panel.clientFilter')}
+            aria-haspopup="menu"
+            aria-expanded={clientMenuOpen}
+            onClick={() => setClientMenuOpen((open) => !open)}
+          >
+            {selectedClient.id === 'all' ? null : <ClientMark id={selectedClient.id} />}
+            <span>{selectedClient.label}</span>
+          </Button>
+        } />
+        <Input
+          className="skh-search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={t('panel.searchPlaceholder')}
+          aria-label={t('panel.searchPlaceholder')}
+          spellCheck={false}
+        />
+      </div>
         <div className="skh-header-actions">
-          <button type="button" className="skh-btn" onClick={() => load()} disabled={loading || busy}>
+          <Button type="button" size="sm" variant="outline" onClick={() => refresh()} disabled={loading || busy}>
             <IconRefresh />
             {t('panel.refresh')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="skh-btn"
+            size="sm" variant="outline"
             onClick={() => {
               setMode('sync');
               setNotice('');
@@ -340,10 +381,10 @@ export function Panel({ t }) {
           >
             <IconSync />
             {t('panel.sync')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="skh-btn skh-btn-primary"
+            size="sm" variant="primary"
             onClick={() => {
               setMode('create');
               setSelectedKey(undefined);
@@ -354,86 +395,30 @@ export function Panel({ t }) {
           >
             <IconPlus />
             {t('panel.create')}
-          </button>
+          </Button>
         </div>
       </header>
       <div className="skh-tabs">
         {[
-          ['all', t('panel.allSkills')],
-          ['library', t('panel.mySkills')],
+          ['all', t('panel.allSkills'), allSkills.length],
+          ['library', t('panel.mySkills'), libraryCount],
+          ['favorites', t('panel.favorites'), favoriteCount],
           ['plugins', t('plugins.title')],
-        ].map(([key, label]) => (
+          ...(conflictCount > 0 || filter === 'conflicts' ? [['conflicts', t('stats.conflicts'), conflictCount]] : []),
+        ].map(([key, label, count]) => (
           <button
             key={key}
             type="button"
             className={mode === 'browse' && filter === key ? 'skh-tab skh-tab-active' : 'skh-tab'}
             onClick={() => {
               setMode('browse');
-              setFilter(key);
+              setFilter(String(key));
+              if (key === 'conflicts') { setQuery(''); setClientFilter('all'); }
             }}
           >
-            {label}
+            {label}{count !== undefined && data && <span className="skh-tab-count">{count}</span>}
           </button>
         ))}
-      </div>
-      {filter === 'plugins' && mode === 'browse' ? null : (
-        <div className="skh-stats">
-          {[
-            ['total', stats.total, t('stats.total')],
-            ['library', stats.library, t('stats.library')],
-            ['written', stats.written, t('stats.written')],
-            ['collected', stats.collected, t('stats.collected')],
-            ['conflicts', stats.conflicts, t('stats.conflicts')],
-          ].map(([key, value, label]) => (
-            <div className="skh-stat" key={key}>
-              <span className="skh-stat-value">{value}</span>
-              <span className="skh-stat-label">{label}</span>
-            </div>
-          ))}
-        </div>
-      )}
-      <div className="skh-toolbar">
-        <div className="skh-client-filter">
-          <button
-            type="button"
-            className="skh-btn skh-client-filter-btn"
-            aria-label={t('panel.clientFilter')}
-            aria-haspopup="listbox"
-            aria-expanded={clientMenuOpen}
-            onClick={() => setClientMenuOpen((open) => !open)}
-          >
-            {selectedClient.id === 'all' ? null : <ClientMark id={selectedClient.id} />}
-            <span>{selectedClient.label}</span>
-          </button>
-          {clientMenuOpen ? (
-            <div className="skh-client-menu" role="listbox" aria-label={t('panel.clientFilter')}>
-              {clientChoices.map((client) => (
-                <button
-                  key={client.id}
-                  type="button"
-                  role="option"
-                  className="skh-client-option"
-                  aria-selected={client.id === clientFilter}
-                  onClick={() => {
-                    setClientFilter(client.id);
-                    setClientMenuOpen(false);
-                  }}
-                >
-                  {client.id === 'all' ? <span className="skh-mark" /> : <ClientMark id={client.id} />}
-                  {client.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
-        <input
-          className="skh-input skh-search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t('panel.searchPlaceholder')}
-          aria-label={t('panel.searchPlaceholder')}
-          spellCheck={false}
-        />
       </div>
       {status}
       <div className={filter === 'plugins' && mode === 'browse' ? 'skh-body skh-body-plugins' : 'skh-body'}>

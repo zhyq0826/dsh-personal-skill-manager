@@ -1,247 +1,100 @@
-import { formatBytes } from './model';
+import { Button, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives';
+import * as React from 'react';
+import { messageOf } from '../api';
+import { formatBytes, isCommunitySkill, isWrittenSkill } from './model';
 import { IconStar, IconCopy, IconTrash, ClientMark } from '../components/Icons';
 import { Badge, Switch } from '../components/Controls';
+import { distributionNotice } from '../sync/distribution';
 
-export function Detail({
-  t,
-  skill,
-  detail,
-  draft,
-  setDraft,
-  busy,
-  detailLoading,
-  onSave,
-  onReset,
-  onFavorite,
-  onSaveAsMine,
-  onDistribute,
-  onCopy,
-  onDelete,
-  onToggleInvocation,
-}) {
-  if (detailLoading && detail === undefined) {
-    return (
-      <div className="skh-empty-detail">
-        <span className="skh-spin" /> {t('list.loading')}
-      </div>
-    );
-  }
-  if (detail === undefined) {
-    return <div className="skh-empty-detail">{t('detail.select')}</div>;
-  }
-  const inLibrary = skill.inLibrary === true;
-  const inCatalog = skill.inCatalog === true;
-  const personal = inLibrary && skill.kind === 'personal';
-  const dirty = draft !== detail.content;
-  const kindLabel = personal ? t('kind.personal') : null;
-  const badges = [
-    kindLabel ? (
-      <Badge key="kind" tone="ok">
-        {kindLabel}
-      </Badge>
-    ) : null,
-    skill.collectedFrom ? (
-      <Badge key="collected-from">{`${t('detail.collectedFrom', { client: skill.collectedFrom.label ?? skill.collectedFrom.id })}`}</Badge>
-    ) : null,
-    detail.linked ? <Badge key="link">{t('badge.linked')}</Badge> : null,
-  ].filter(Boolean);
-  const clientBadges = (skill.clients ?? [])
-    .filter((client) => client.id !== 'library')
-    .map((client) => (
-      <Badge
-        key={client.id}
-        tone={client.state === 'conflict' ? 'error' : client.state === 'missing' ? 'warn' : 'ok'}
-      >
-        <ClientMark id={client.id} />
-        {`${client.label ?? client.id}: ${t(`sync.state.${client.state}`)}`}
-      </Badge>
-    ));
-  const fileRows = detail.files.map((file) => (
-    <li key={file.path}>{`${file.path} · ${formatBytes(file.bytes)}`}</li>
-  ));
-  const actions = [];
-  if (inLibrary) {
-    actions.push(
-      <button
-        key="save"
-        type="button"
-        className="skh-btn skh-btn-primary"
-        onClick={onSave}
-        disabled={busy || !detail.editable || !dirty}
-      >
-        {t('detail.save')}
-      </button>,
-      <button
-        key="reset"
-        type="button"
-        className="skh-btn"
-        onClick={onReset}
-        disabled={busy || !detail.editable || !dirty}
-      >
-        {t('detail.reset')}
-      </button>,
-    );
-    if (detail.deletable && !detail.linked) {
-      actions.push(
-        <button
-          key="delete"
-          type="button"
-          className="skh-btn skh-btn-danger"
-          onClick={onDelete}
-          disabled={busy}
-        >
-          <IconTrash />
-          {t('detail.delete')}
-        </button>,
-      );
+function TargetRow({ t, target, dirty, busy, onDistribute }) {
+  const [pending, setPending] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const conflict = target.state === 'conflict';
+  const actionable = conflict || target.state === 'missing';
+  const distribute = async () => {
+    setPending(true);
+    setError('');
+    try {
+      const result = await onDistribute(target.id, conflict);
+      if (result.failed || result.conflicts || !result.results.length) {
+        setError(result.results.find(entry => entry.error)?.error || distributionNotice(result, [target], t));
+      }
+    } catch (caught) {
+      setError(messageOf(caught));
+    } finally {
+      setPending(false);
     }
-  } else if (inCatalog || skill.kind === 'collected') {
-    actions.push(
-      <button key="favorite" type="button" className="skh-btn" onClick={onFavorite} disabled={busy}>
-        <IconStar filled={true} />
-        {t('detail.unfavorite')}
-      </button>,
-      <button key="mine" type="button" className="skh-btn" onClick={onSaveAsMine} disabled={busy}>
-        {t('detail.saveAsMine')}
-      </button>,
-    );
-  }
-  if (inLibrary && skill.kind === 'collected') {
-    actions.push(
-      <button key="mine" type="button" className="skh-btn" onClick={onSaveAsMine} disabled={busy}>
-        {t('detail.saveAsMine')}
-      </button>,
-    );
-  }
-  return (
-    <div>
-      <div className="skh-detail-head">
-        <div className="skh-detail-title">{detail.name}</div>
-        {inCatalog || skill.kind === 'collected' ? (
-          <button
-            type="button"
-            className="skh-star skh-star-on"
-            onClick={onFavorite}
-            disabled={busy}
-            title={t('detail.unfavorite')}
-            aria-label={t('detail.unfavorite')}
-            aria-pressed={true}
-          >
-            <IconStar filled={true} />
-          </button>
-        ) : null}
-      </div>
-      <div className="skh-detail-sub">{badges}</div>
-      <div className="skh-path">
-        <span className="skh-path-text">{detail.path}</span>
-        <button
-          type="button"
-          className="skh-icon-btn"
-          onClick={onCopy}
-          title={t('detail.copyPath')}
-          aria-label={t('detail.copyPath')}
-        >
-          <IconCopy />
-        </button>
-      </div>
-      {clientBadges.length > 0 ? (
-        <div className="skh-section">
-          <div className="skh-section-title">{t('detail.clients')}</div>
-          <div className="skh-row-meta">{clientBadges}</div>
-        </div>
-      ) : null}
-      {personal && Array.isArray(skill.targets) && skill.targets.length > 0 ? (
-        <div className="skh-section">
-          <div className="skh-section-title">{t('detail.targets')}</div>
-          <div className="skh-target-actions">
-            {skill.targets.map((target) => (
-              <div className="skh-target-action" key={target.id}>
-                <Badge
-                  tone={target.state === 'conflict' ? 'error' : target.state === 'missing' ? 'warn' : 'ok'}
-                >{`${target.label}: ${t(`sync.state.${target.state}`)}`}</Badge>
-                {target.state === 'conflict' ? (
-                  <button
-                    type="button"
-                    className="skh-btn"
-                    disabled={busy}
-                    onClick={() => onDistribute(target.id, true)}
-                  >
-                    {t('detail.replaceHere')}
-                  </button>
-                ) : target.state === 'missing' ? (
-                  <button
-                    type="button"
-                    className="skh-btn"
-                    disabled={busy}
-                    onClick={() => onDistribute(target.id, false)}
-                  >
-                    {t('detail.distributeTo')}
-                  </button>
-                ) : null}
-              </div>
-            ))}
-          </div>
-          <div className="skh-note">{t('detail.targetsHelp')}</div>
-        </div>
-      ) : null}
-      {detail.whenToUse ? (
-        <div className="skh-section">
-          <div className="skh-section-title">{t('detail.whenToUse')}</div>
-          <div className="skh-when">{detail.whenToUse}</div>
-        </div>
-      ) : null}
-      {inLibrary && detail.editable ? (
-        <div className="skh-toggles">
-          <Switch
-            checked={detail.modelInvocable}
-            onChange={() => onToggleInvocation('model')}
-            label={t('detail.modelToggle')}
-            hint={t('detail.modelHint')}
-            disabled={busy}
-          />
-          <Switch
-            checked={detail.userInvocable}
-            onChange={() => onToggleInvocation('user')}
-            label={t('detail.userToggle')}
-            hint={t('detail.userHint')}
-            disabled={busy}
-          />
-        </div>
-      ) : null}
+  };
+  return <div className="skh-target-action">
+    <ClientMark id={target.id} />
+    <strong>{target.label}</strong>
+    <span role="status"><Badge tone={conflict ? 'error' : actionable ? 'warn' : 'ok'}>
+      {t(pending ? 'distribution.pending' : `sync.state.${target.state}`)}
+    </Badge></span>
+    {actionable && <Tooltip disabled={!conflict || busy || pending} portal side="bottom" maxWidth={320} openOnClick
+      label={[t('detail.targetsHelp', { client: target.label }), dirty && t('detail.savedOnly')].filter(Boolean).join(' ')}>
+      <Button type="button" size="sm" variant="outline" onClick={distribute} disabled={busy || pending}>
+      {t(conflict ? 'detail.replaceHere' : 'detail.distributeTo', { client: target.label })}
+      </Button>
+    </Tooltip>}
+    {error && <p className="skh-inline-error" role="alert">{error}</p>}
+  </div>;
+}
+
+export function Detail({ t, skill, detail, draft, setDraft, busy, favoritePending, detailLoading,
+  onSave, onReset, onFavorite, onSaveAsMine, onDistribute, onCopy, onDelete, onToggleInvocation }) {
+  const dirty = Boolean(detail && draft !== detail.content);
+  const personal = isWrittenSkill(skill);
+  const favorite = isCommunitySkill(skill);
+  const targets = personal ? skill.targets : [];
+  const clients = skill.clients.filter(client => client.id !== 'library');
+  return <div>
+    <div className="skh-detail-head">
+      <div className="skh-detail-title">{skill.name}</div>
+      {personal && <Badge>{t('kind.personal')}</Badge>}
+      {!personal && <button type="button" className={favorite ? 'skh-star skh-star-on' : 'skh-star'} onClick={onFavorite}
+        disabled={busy || favoritePending} aria-pressed={favorite} aria-label={t(favorite ? 'detail.unfavorite' : 'detail.favorite')}>
+        <IconStar filled={favorite} />
+      </button>}
+    </div>
+    {skill.description && <p className="skh-description">{skill.description}</p>}
+    {detail && <div className="skh-path"><span className="skh-path-text">{detail.path}</span>
+      <button className="skh-icon-btn" onClick={onCopy} aria-label={t('detail.copyPath')}><IconCopy /></button></div>}
+    {skill.collectedFrom && <Badge>{t('detail.collectedFrom', { client: skill.collectedFrom.label ?? skill.collectedFrom.id })}</Badge>}
+    {favorite && <Button size="sm" variant="outline" disabled={busy} onClick={onSaveAsMine}>{t('detail.saveAsMine')}</Button>}
+    {clients.length > 0 && <div className="skh-section"><div className="skh-section-title">{t('detail.clients')}</div>
+      <div className="skh-row-meta">{clients.map(client => <Badge key={client.id}><ClientMark id={client.id} />
+        {client.label ?? client.id}{targets.some(target => target.id === client.id) ? '' : ` · ${t(`sync.state.${client.state}`)}`}</Badge>)}</div></div>}
+    {targets.length > 0 && <div className="skh-section"><div className="skh-section-title">{t('detail.targets')}</div>
+      <div className="skh-target-actions">{targets.map(target => <TargetRow key={target.id} {...{ t, target, dirty, busy, onDistribute }} />)}</div>
+    </div>}
+    {!detail ? <p role="status">{t(detailLoading ? 'list.loading' : 'detail.select')}</p> : <>
+      {detail.whenToUse && <p className="skh-when">{detail.whenToUse}</p>}
+        {skill.inLibrary && detail.editable && <div className="skh-toggles">
+          <Switch checked={detail.modelInvocable} onChange={() => onToggleInvocation('model')} label={t('detail.modelToggle')} hint={t('detail.modelHint')} disabled={busy || dirty} />
+          <Switch checked={detail.userInvocable} onChange={() => onToggleInvocation('user')} label={t('detail.userToggle')} hint={t('detail.userHint')} disabled={busy || dirty} />
+          {dirty && <p className="skh-note">{t('detail.saveBeforeToggle')}</p>}
+        </div>}
       <div className="skh-section">
         <div className="skh-section-title">{t('detail.editor')}</div>
-        {detail.editable ? (
-          <textarea
-            className="skh-editor"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            spellCheck={false}
-            disabled={busy}
-            aria-label={t('detail.editor')}
-          />
-        ) : (
-          <pre className="skh-pre">{detail.content}</pre>
-        )}
-        {detail.editable ? (
-          <div className={dirty ? 'skh-dirty' : 'skh-clean'}>
-            {dirty ? t('detail.dirty') : t('detail.clean')}
+        {detail.editable ? <>
+          <textarea className="skh-editor" aria-label={t('detail.editor')} value={draft} disabled={busy}
+            spellCheck={false} onChange={event => setDraft(event.target.value)} />
+          <div className={dirty ? 'skh-dirty' : 'skh-clean'}>{t(dirty ? 'detail.dirty' : 'detail.clean')}</div>
+          <div className="skh-actions">
+            <Button size="sm" variant="primary" disabled={busy || !dirty} onClick={onSave}>{t('detail.save')}</Button>
+            <Button size="sm" variant="outline" disabled={busy || !dirty} onClick={onReset}>{t('detail.reset')}</Button>
           </div>
-        ) : (
-          <div className="skh-note">
-            {personal ? t('detail.readonlyNote') : inLibrary ? t('detail.legacyCollectedNote') : ''}
-          </div>
-        )}
-        {detail.linked ? <div className="skh-note">{t('detail.linkedNote')}</div> : null}
-        {actions.length > 0 ? <div className="skh-actions">{actions}</div> : null}
-        {inLibrary && detail.editable ? <div className="skh-note">{t('detail.editNote')}</div> : null}
+        </> : <pre className="skh-pre">{detail.content}</pre>}
+        {detail.linked && <p className="skh-note">{t('detail.linkedNote')}</p>}
       </div>
-      <details className="skh-files">
-        <summary>{t('detail.files', { count: detail.files.length })}</summary>
-        {detail.files.length === 0 ? <div>{t('detail.noFiles')}</div> : <ul>{fileRows}</ul>}
-        <div
-          style={{ marginTop: 6 }}
-        >{`${t('detail.digest')}: ${String(detail.digest ?? '').slice(0, 12)}…`}</div>
-      </details>
-    </div>
-  );
+        <details className="skh-files"><summary>{t('detail.files', { count: detail.files.length })}</summary>
+          {detail.files.length ? <ul>{detail.files.map(file => <li key={file.path}>{file.path} · {formatBytes(file.bytes)}</li>)}</ul> : t('detail.noFiles')}
+          <p>{t('detail.digest')} · {String(detail.digest).slice(0, 12)}…</p>
+        </details>
+      {skill.inLibrary && detail.deletable && !detail.linked && <details className="skh-files"><summary>{t('detail.more')}</summary>
+        <Button size="sm" variant="outline" className="skh-btn-danger" disabled={busy} onClick={onDelete}><IconTrash />{t('detail.delete')}</Button>
+      </details>}
+    </>}
+  </div>;
 }

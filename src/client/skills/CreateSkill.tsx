@@ -1,3 +1,4 @@
+import { Button, Input } from '@deepseek-ai/dsh-client-ui-primitives';
 import * as React from 'react';
 
 export function CreateForm({ t, busy, onCreate, onCancel }) {
@@ -27,15 +28,15 @@ export function CreateForm({ t, busy, onCreate, onCancel }) {
     <form className="skh-form" onSubmit={submit}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div className="skh-title">{t('create.title')}</div>
-        <button
+        <Button
           type="button"
-          className="skh-btn"
+          size="sm" variant="outline"
           style={{ marginLeft: 'auto' }}
           onClick={onCancel}
           disabled={busy}
         >
           {t('create.back')}
-        </button>
+        </Button>
       </div>
       <label className="skh-field">
         <span className="skh-label">{t('create.root')}</span>
@@ -45,8 +46,8 @@ export function CreateForm({ t, busy, onCreate, onCancel }) {
       </label>
       <label className="skh-field">
         <span className="skh-label">{t('create.name')}</span>
-        <input
-          className="skh-input"
+        <Input
+          className="skh-text-field"
           value={form.name}
           onChange={set('name')}
           placeholder="my-workflow"
@@ -58,8 +59,8 @@ export function CreateForm({ t, busy, onCreate, onCancel }) {
       </label>
       <label className="skh-field">
         <span className="skh-label">{t('create.description')}</span>
-        <input
-          className="skh-input"
+        <Input
+          className="skh-text-field"
           value={form.description}
           onChange={set('description')}
           placeholder={t('create.descriptionHint')}
@@ -68,8 +69,8 @@ export function CreateForm({ t, busy, onCreate, onCancel }) {
       </label>
       <label className="skh-field">
         <span className="skh-label">{t('create.whenToUse')}</span>
-        <input
-          className="skh-input"
+        <Input
+          className="skh-text-field"
           value={form.whenToUse}
           onChange={set('whenToUse')}
           placeholder={t('create.whenToUseHint')}
@@ -94,13 +95,13 @@ export function CreateForm({ t, busy, onCreate, onCancel }) {
         </div>
       )}
       <div className="skh-actions">
-        <button type="submit" className="skh-btn skh-btn-primary" disabled={busy}>
+        <Button type="submit" size="sm" variant="primary" disabled={busy}>
           {busy ? <span className="skh-spin" /> : null}
           {t('create.submit')}
-        </button>
-        <button type="button" className="skh-btn" onClick={onCancel} disabled={busy}>
+        </Button>
+        <Button type="button" size="sm" variant="outline" onClick={onCancel} disabled={busy}>
           {t('create.cancel')}
-        </button>
+        </Button>
       </div>
     </form>
   );

@@ -23,6 +23,7 @@ test('shipped client registers and releases its native slots and matching dictio
   });
   assert.equal(registered.id, manifest.name);
   const plugin = registered.factory((id) => {
+    if (id === '@deepseek-ai/dsh-client-ui-primitives') return {};
     assert.ok(['react', 'react/jsx-runtime'].includes(id), id);
     return require(id);
   });

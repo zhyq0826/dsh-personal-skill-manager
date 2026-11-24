@@ -1,3 +1,4 @@
+import { Button, Checkbox, Input, SegmentedTabs } from '@deepseek-ai/dsh-client-ui-primitives';
 import * as React from 'react';
 import { messageOf, request } from '../api';
 import { LocalClients } from './LocalClients';
@@ -25,10 +26,12 @@ function whenText(iso) {
 }
 
 export function SyncPanel({ t, onBack, onChanged }) {
+  const panelId = React.useId();
   const [view, setView] = React.useState('libraryView');
   const [status, setStatus] = React.useState(undefined);
   const [form, setForm] = React.useState(undefined);
   const [busy, setBusy] = React.useState(false);
+  const [distributionFeedback, setDistributionFeedback] = React.useState(false);
   const [error, setError] = React.useState('');
   const [notice, setNotice] = React.useState('');
   const [last, setLast] = React.useState(undefined);
@@ -58,6 +61,7 @@ export function SyncPanel({ t, onBack, onChanged }) {
   }, [t]);
 
   const run = async (path, body, successKey) => {
+    setDistributionFeedback(path === '/distribute');
     setBusy(true);
     setError('');
     setNotice('');
@@ -102,15 +106,14 @@ export function SyncPanel({ t, onBack, onChanged }) {
   };
 
   if (status === undefined || form === undefined) {
-    return <div className="skh-empty-detail"><button type="button" className="skh-btn" onClick={onBack}>{t('sync.back')}</button><p role="status">{error || t('sync.loading')}</p></div>;
+    return <div className="skh-empty-detail"><Button type="button" size="sm" variant="outline" onClick={onBack}>{t('sync.back')}</Button><p role="status">{error || t('sync.loading')}</p></div>;
   }
 
   const set = (field) => (event) => {
-    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
+    const value = event.target.value;
     setForm((previous) => ({ ...previous, [field]: value }));
   };
-  const setTarget = (index, field) => (event) => {
-    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
+  const setTarget = (index, field) => (value) => {
     setForm((previous) => ({
       ...previous,
       targets: previous.targets.map((target, cursor) =>
@@ -187,10 +190,10 @@ export function SyncPanel({ t, onBack, onChanged }) {
         ) : null;
   const saveSettings = (
     <div className="skh-actions">
-      <button type="button" className="skh-btn" disabled={busy || !unsaved}
-        onClick={() => run('/settings', { ...form, restore: false }, 'sync.saved')}>{t('sync.save')}</button>
-      {unsaved && <button type="button" className="skh-btn" disabled={busy}
-        onClick={() => setForm(syncFormFrom(status))}>{t('sync.cancelSettings')}</button>}
+      <Button type="button" size="sm" variant="outline" disabled={busy || !unsaved}
+        onClick={() => run('/settings', { ...form, restore: false }, 'sync.saved')}>{t('sync.save')}</Button>
+      {unsaved && <Button type="button" size="sm" variant="outline" disabled={busy}
+        onClick={() => setForm(syncFormFrom(status))}>{t('sync.cancelSettings')}</Button>}
     </div>
   );
   const canLeave = () => !unsaved || window.confirm(t('sync.discardOnLeave'));
@@ -198,6 +201,7 @@ export function SyncPanel({ t, onBack, onChanged }) {
     if (next === view || !canLeave()) return;
     if (unsaved) setForm(syncFormFrom(status));
     setView(next);
+    setDistributionFeedback(false);
     setNotice('');
     setError('');
     setLast(undefined);
@@ -207,18 +211,15 @@ export function SyncPanel({ t, onBack, onChanged }) {
     <div className="skh-sync">
       <header className="skh-sync-heading">
         <h1>{t('panel.sync')}</h1>
-        <button type="button" className="skh-btn" disabled={busy} onClick={() => { if (canLeave()) onBack(); }}>{t('sync.back')}</button>
+        <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => { if (canLeave()) onBack(); }}>{t('sync.back')}</Button>
       </header>
-      <nav className="skh-tabs" aria-label={t('panel.sync')}>
-        {['libraryView', 'clientsView', 'recovery'].map((item) => (
-          <button type="button" key={item} aria-pressed={item === view} disabled={busy}
-            className={item === view ? 'skh-tab skh-tab-active' : 'skh-tab'} onClick={() => switchView(item)}>
-            {t(`sync.${item}`)}
-          </button>
-        ))}
-      </nav>
+      <fieldset className="skh-sync-tabs" disabled={busy}>
+        <SegmentedTabs label={t('panel.sync')} value={view} onChange={switchView}
+          items={['libraryView', 'clientsView', 'recovery'].map(value => ({ value, id: `${panelId}-${value}`, panelId, label: t(`sync.${value}`) }))} />
+      </fieldset>
+      <div role="tabpanel" id={panelId} aria-labelledby={`${panelId}-${view}`}>
       {unsaved && <div className="skh-note">{t('sync.unsaved')}</div>}
-      {view !== 'libraryView' && feedback}
+      {view !== 'libraryView' && !distributionFeedback && feedback}
       {view === 'libraryView' && <>
         <section className="skh-sync-overview">
           <div>
@@ -226,18 +227,18 @@ export function SyncPanel({ t, onBack, onChanged }) {
             <p className="skh-repo-location">{hasRemote ? `${repoName} · ${status.settings.gitBranch}` : t('sync.setupHint')}</p>
             {repo.isRepo && <Badge tone={repo.dirty ? 'warn' : 'muted'}>{t(repo.dirty ? 'sync.repoDirty' : 'sync.repoClean')}</Badge>}
           </div>
-          <button type="button" className={hasRemote ? 'skh-btn skh-btn-primary' : 'skh-btn'} disabled={busy || unsaved}
+          <Button type="button" size="sm" variant={hasRemote ? 'primary' : 'outline'} disabled={busy || unsaved}
             onClick={() => run('/sync', {}, hasRemote ? 'sync.synced' : 'sync.localDone')}>
             {t(hasRemote ? 'sync.syncNow' : 'sync.localCommit')}
-          </button>
+          </Button>
         </section>
         {feedback}
         {results}
         <details className="skh-sync-card" key="git-settings" open={!hasRemote || undefined}>
           <summary>{t('sync.gitSettings')}</summary>
         <div className="skh-sync-title">{t('sync.personalDir')}</div>
-        <input
-          className="skh-input"
+        <Input
+          className="skh-text-field"
           aria-label={t('sync.personalDir')}
           value={form.personalDir}
           placeholder={status.personalDir}
@@ -251,8 +252,8 @@ export function SyncPanel({ t, onBack, onChanged }) {
         <div className="skh-sync-title" style={{ marginTop: 12 }}>
           {t('sync.gitRemote')}
         </div>
-        <input
-          className="skh-input"
+        <Input
+          className="skh-text-field"
           aria-label={t('sync.gitRemote')}
           value={form.gitRemote}
           placeholder="git@github.com:you/skills.git"
@@ -263,8 +264,8 @@ export function SyncPanel({ t, onBack, onChanged }) {
         <div className="skh-help">{t('sync.gitRemoteHint')}</div>
         <div className="skh-sync-line">
           <span className="skh-sync-title">{t('sync.branch')}</span>
-          <input
-            className="skh-input skh-branch"
+          <Input
+            className="skh-branch"
             aria-label={t('sync.branch')}
             value={form.gitBranch}
             onChange={set('gitBranch')}
@@ -272,10 +273,7 @@ export function SyncPanel({ t, onBack, onChanged }) {
             spellCheck={false}
           />
         </div>
-        <label className="skh-check">
-          <input type="checkbox" checked={form.autoSync} onChange={set('autoSync')} disabled={busy} />
-          <span>{t('sync.autoSync')}</span>
-        </label>
+        <Checkbox checked={form.autoSync} onChange={autoSync => setForm(previous => ({ ...previous, autoSync }))} disabled={busy} label={t('sync.autoSync')} />
         {!repo.isRepo && <p className="skh-help">{t('sync.firstSyncHint')}</p>}
         {saveSettings}
         </details>
@@ -306,8 +304,9 @@ export function SyncPanel({ t, onBack, onChanged }) {
         </details>
       </>}
       {view === 'clientsView' && <LocalClients
+        distributionFeedback={distributionFeedback && (busy ? <p role="status">{t('distribution.pending')}</p> : feedback)}
         t={t} data={targetsData} form={form} savedTargets={status.settings.targets ?? status.targets ?? []} personalMeta={favorites} busy={busy} unsaved={unsaved}
-        setTarget={setTarget} setAuto={set('autoDistribute')}
+        setTarget={setTarget} setAuto={autoDistribute => setForm(previous => ({ ...previous, autoDistribute }))}
         save={() => run('/settings', { ...form, restore: false }, 'sync.saved')}
         revert={() => setForm(syncFormFrom(status))}
         distribute={(replaceConflicts) => run('/distribute', { replaceConflicts }, 'sync.distributed')}
@@ -317,12 +316,12 @@ export function SyncPanel({ t, onBack, onChanged }) {
       <div className="skh-sync-card">
         <div className="skh-section-title">{t('sync.recovery')}</div>
         <p>{t('sync.recoveryHint')}</p>
-        {!hasRemote && <button type="button" className="skh-btn" onClick={() => switchView('libraryView')}>{t('sync.gitSettings')}</button>}
+        {!hasRemote && <Button type="button" size="sm" variant="outline" onClick={() => switchView('libraryView')}>{t('sync.gitSettings')}</Button>}
         <div className="skh-actions">
-          <button type="button" className="skh-btn" disabled={busy || unsaved || !hasRemote}
+          <Button type="button" size="sm" variant="outline" disabled={busy || unsaved || !hasRemote}
             onClick={() => run('/restore', {}, 'sync.restored')}>
             {t('sync.restore')}
-          </button>
+          </Button>
         </div>
         <div className="skh-sync-title">{`${t('sync.catalog')} · ${status.catalog?.count ?? 0} · ${t('sync.installable')} ${status.catalog?.installable ?? 0}`}</div>
         <div className="skh-help">{t('sync.catalogHelp')}</div>
@@ -333,14 +332,14 @@ export function SyncPanel({ t, onBack, onChanged }) {
           </div>
         ))}
         <div className="skh-actions">
-          <button
+          <Button
             type="button"
-            className="skh-btn"
+            size="sm" variant="outline"
             disabled={busy}
             onClick={() => run('/install-catalog', {}, 'sync.catalogInstalled')}
           >
             {t('sync.installCatalog')}
-          </button>
+          </Button>
         </div>
       </div>
       {status.legacyCollected > 0 ? (
@@ -348,19 +347,20 @@ export function SyncPanel({ t, onBack, onChanged }) {
           <div className="skh-sync-title">{`${t('sync.legacyTitle')} (${status.legacyCollected})`}</div>
           <div className="skh-help">{t('sync.legacyHelp')}</div>
           <div className="skh-actions">
-            <button
+            <Button
               type="button"
-              className="skh-btn"
+              size="sm" variant="outline"
               disabled={busy}
               onClick={() => run('/cleanup-legacy', {}, 'sync.legacyCleaned')}
             >
               {t('sync.cleanupLegacy')}
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}
       </>}
       {view !== 'libraryView' && results}
+      </div>
     </div>
   );
 }
