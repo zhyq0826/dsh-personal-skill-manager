@@ -2,7 +2,7 @@
  * Skill library bundle entry.
  *
  * The Host half owns the scan, mutation, and HTTP surfaces. The browser half in
- * ./client.js renders the library as a main panel and sidebar entry.
+ * the package's client export renders the library as a main panel and sidebar entry.
  */
 
 import { createRoutes } from './lib/routes.js';

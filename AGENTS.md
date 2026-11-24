@@ -31,17 +31,19 @@
 | 改动 | 路径 |
 | --- | --- |
 | DSH 注册、启动行为、打包配置 | `index.js`、`cordis.patch.yml`、`package.json` |
-| 面板、侧栏、文案和图标 | `client.js`、`locale/`、`icon.svg`、`icon-dark.svg` |
+| 浏览器入口、页面和组件、样式、字典 | `src/client/`，其中 `index.ts` 注册 DSH slot，`skills/`、`sync/`、`plugins/` 维护各页面 |
+| 客户端构建和包级展示资源 | `scripts/build.mjs`、`tsconfig.json`、`package-lock.json`、`locale/`、`icon.svg`、`icon-dark.svg` |
 | 技能扫描、设置、文件改写和个人库元数据 | `lib/core.js` |
 | 技能收藏安装、客户端扫描和分发 | `lib/catalog.js`、`lib/targets.js` |
 | Git 同步和换机恢复 | `lib/sync.js` |
 | 插件清单、收藏、分发和适配 | `lib/plugins.js`、`lib/plugin-delivery.js` |
 | 面板 HTTP 接口与对话工具 | `lib/routes.js`、`lib/tool.js` |
 | 自动验收与文档 | `test/`、`AGENTS.md`、`README.md`、`README.en.md`、`PLUGIN.md` |
+| DSH 窗口验收与功能地图 | `.cursor/skills/verify-skill-manager/` |
 
 ## 启动与打包
 
-插件使用原生 ESM，由 DSH 直接加载。在源码仓库根目录运行 `dsh plugin --profile desktop add .`，然后在对应 profile 的侧栏打开 **我的技能**。
+在源码仓库根目录运行 `npm ci` 和 `npm run build`，然后运行 `dsh plugin --profile desktop add .`。在该 profile 的侧栏打开 **我的技能**。Host 入口为 `index.js`，DSH 按 `./client` 导出加载生成的 `dist/client.js`。修改 TSX 或 CSS 后重新构建。
 
 发版时在 `package.json` 更新版本，运行下方验收，然后用 `npm whoami --registry=https://registry.npmjs.org/` 确认账号为 `zhyq0826`，再执行 `npm publish`。发布前会自动运行测试。
 
@@ -51,10 +53,9 @@
 
 ```sh
 npm test
-node --check client.js
 npm run pack:check
 ```
 
-测试使用临时目录和本地 Git 仓库。打包清单应包含 Host 和面板入口、`lib/`、`locale/`、`cordis.patch.yml`、图标和文档。
+`npm test` 先做 TypeScript 检查和客户端构建，再运行测试。打包清单应包含 `index.js`、`dist/client.js`、`lib/`、`locale/`、`cordis.patch.yml`、图标和文档。
 
-若改动依赖 DSH Host 或面板行为，在测试 profile 中加载本地插件，打开 **我的技能**，按 [操作指南](PLUGIN.md) 验证受影响的流程。报告中分别记录自动检查结果和 DSH 实测结果。
+若改动涉及搜索、分发或 Git 同步，按[窗口验收技能](.cursor/skills/verify-skill-manager/SKILL.md)运行对应场景。其他面板行为在测试 profile 中打开 **我的技能**，按[操作指南](PLUGIN.md)验证受影响的流程。

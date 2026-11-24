@@ -15,14 +15,14 @@
   "icon": "icon.svg",
   "exports": {
     ".": "./index.js",
-    "./client": "./client.js",
+    "./client": "./dist/client.js",
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg",
     "./icon-dark": "./icon-dark.svg"
   },
   "files": [
     "index.js",
-    "client.js",
+    "dist/client.js",
     "lib",
     "locale",
     "cordis.patch.yml",
@@ -35,6 +35,9 @@
     "icon-dark.svg"
   ],
   "scripts": {
+    "build": "tsc --noEmit && node scripts/build.mjs",
+    "pretest": "npm run build",
+    "prepack": "npm run build",
     "test": "node --test test/*.test.js",
     "prepublishOnly": "npm test",
     "pack:check": "npm pack --dry-run"
@@ -69,5 +72,12 @@
   "author": {
     "name": "zhyq0826",
     "url": "https://www.npmjs.com/~zhyq0826"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.31",
+    "esbuild": "0.25.12",
+    "playwright-core": "1.61.1",
+    "react": "18.3.1",
+    "typescript": "5.9.3"
   }
 }
