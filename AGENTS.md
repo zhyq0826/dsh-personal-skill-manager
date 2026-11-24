@@ -1,6 +1,6 @@
 # 仓库维护指南
 
-本仓库维护 DeepSeek Harness（DSH）的个人技能管理插件。维护规则、当前范围和验收以本文为准。DSH 插件详情页展示 [README.md](README.md)，安装命令和详细操作见 [PLUGIN.md](PLUGIN.md)。
+本仓库维护 DeepSeek Harness（DSH）的个人技能管理插件。维护规则、当前范围和验收以本文为准。DSH 插件详情页展示的产品介绍和安装命令见 [README.md](README.md)。收藏、分发和换机恢复的操作步骤见 [PLUGIN.md](PLUGIN.md)。
 
 ## 硬边界
 

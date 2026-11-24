@@ -1,6 +1,6 @@
 # Using the skill library
 
-To install a published version in the `desktop` profile, run `dsh plugin --profile desktop add @zhyq0826/dsh-personal-skill-manager`. Open **My skills** in the DSH sidebar.
+Open **My skills** in the DSH sidebar. For installation, see the [README](README.en.md).
 
 ## Set up a personal library
 
