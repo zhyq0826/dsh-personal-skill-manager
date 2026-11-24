@@ -110,7 +110,12 @@ test('sync status and settings routes expose the portable library controls', asy
     });
     assert.equal(saved.status, 200);
     assert.equal(saved.body.status.personalDir, personalDir);
+    assert.equal(saved.body.warning, undefined);
     assert.ok(fs.existsSync(path.join(dshHomeOf(config), 'skill-hub', 'settings.json')));
+
+    const reopened = await invoke(routes, '/api/skill-hub/sync/status');
+    assert.equal(reopened.body.status.personalDir, personalDir);
+    assert.equal(reopened.body.warning, undefined);
 
     const synced = await invoke(routes, '/api/skill-hub/sync', {
       method: 'POST',

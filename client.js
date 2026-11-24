@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: 'dsh-personal-skill-manager',
+  id: '@zhyq0826/dsh-personal-skill-manager',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
@@ -119,7 +119,6 @@ window.__ModuleLoader__.load({
       'sync.installable': '可同步',
       'sync.lastRestore': '上次安装',
       'sync.never': '还没有运行过',
-      'sync.warning': '提醒',
       'sync.loading': '正在读取同步状态…',
       'sync.loadFailed': '读取同步状态失败：{error}',
       'sync.saved': '设置已保存。',
@@ -198,7 +197,6 @@ window.__ModuleLoader__.load({
       'sync.state.client': '客户端',
       'badge.targetConflict': '待处理 {count} 个客户端',
       'sync.installableNo': '不可安装',
-      'sync.settingsHint': '目录需要在 DSH 的扫描范围内，否则同步后也不会加载。',
       'sync.firstSyncHint': '还不是仓库时，只在远端分支为空时初始化并推送。远端已有分支则拒绝覆盖。',
       'panel.count': '{count} 个技能',
       'panel.searchPlaceholder': '搜索名称、描述或路径',
@@ -418,7 +416,6 @@ window.__ModuleLoader__.load({
       'sync.installable': 'present',
       'sync.lastRestore': 'Last install',
       'sync.never': 'Not run yet',
-      'sync.warning': 'Notice',
       'sync.loading': 'Reading sync status…',
       'sync.loadFailed': 'Could not read sync status: {error}',
       'sync.saved': 'Settings saved.',
@@ -497,7 +494,6 @@ window.__ModuleLoader__.load({
       'sync.state.client': 'Client',
       'badge.targetConflict': '{count} clients need review',
       'sync.installableNo': 'Not installable',
-      'sync.settingsHint': 'The directory must be inside a DSH scan root, or synced files will not load.',
       'sync.firstSyncHint': 'If this is not a repository yet, it is initialized and pushed only when the remote branch is empty. An existing remote branch is refused.',
       'panel.count': '{count} skills',
       'panel.searchPlaceholder': 'Search name, description, or path',
@@ -1246,7 +1242,6 @@ window.__ModuleLoader__.load({
       const [busy, setBusy] = React.useState(false);
       const [error, setError] = React.useState('');
       const [notice, setNotice] = React.useState('');
-      const [warning, setWarning] = React.useState('');
       const [last, setLast] = React.useState(undefined);
       const [targetsData, setTargetsData] = React.useState(undefined);
 
@@ -1259,7 +1254,6 @@ window.__ModuleLoader__.load({
           ]);
           setStatus(payload.status);
           setForm(syncFormFrom(payload.status));
-          setWarning(typeof payload.warning === 'string' ? payload.warning : '');
           if (targetsPayload !== undefined) setTargetsData(targetsPayload);
         } catch (caught) {
           setError(t('sync.loadFailed', { error: messageOf(caught) }));
@@ -1280,7 +1274,6 @@ window.__ModuleLoader__.load({
             setStatus(payload.status);
             setForm(syncFormFrom(payload.status));
           }
-          setWarning(typeof payload.warning === 'string' ? payload.warning : '');
           let result = payload.result ?? payload.restore ?? payload.install;
           if (result !== undefined && result !== null && result.distribution !== undefined) {
             result = result.distribution;
@@ -1365,7 +1358,6 @@ window.__ModuleLoader__.load({
           ),
         ),
         t('sync.help') === '' ? null : h('p', { className: 'skh-note' }, t('sync.help')),
-        warning !== '' ? h('div', { className: 'skh-status skh-status-warn' }, warning) : null,
         error !== ''
           ? h('div', { className: 'skh-status skh-status-error', role: 'alert' }, error)
           : notice !== ''
@@ -1418,7 +1410,6 @@ window.__ModuleLoader__.load({
             h('input', { type: 'checkbox', checked: form.autoSync, onChange: set('autoSync'), disabled: busy }),
             h('span', null, t('sync.autoSync')),
           ),
-          h('div', { className: 'skh-help' }, t('sync.settingsHint')),
           h(
             'div',
             { className: 'skh-actions' },

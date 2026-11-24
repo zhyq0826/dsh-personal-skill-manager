@@ -2,5 +2,5 @@
 # `dsh.client` declaration; the Host row owns the routes and the skill_hub tool.
 - insert:
     - id: dsh-personal-skill-manager
-      name: 'dsh-personal-skill-manager'
+      name: '@zhyq0826/dsh-personal-skill-manager'
       config: {}
