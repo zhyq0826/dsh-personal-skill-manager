@@ -1,6 +1,6 @@
 # 仓库维护指南
 
-本仓库维护 DeepSeek Harness（DSH）的个人技能管理插件。维护规则、当前范围和验收以本文为准。DSH 插件详情页展示的产品介绍和安装命令见 [README.md](README.md)。收藏、分发和换机恢复的操作步骤见 [PLUGIN.md](PLUGIN.md)。
+本仓库维护 DeepSeek Harness（DSH）的个人技能管理插件。维护规则、当前范围和验收以本文为准。DSH 插件详情页展示的产品介绍和安装命令见 [README.md](README.md)。收藏、分发和换机恢复的操作步骤见[中文操作指南](PLUGIN.zh-CN.md)。
 
 ## 硬边界
 
@@ -32,20 +32,19 @@
 | --- | --- |
 | DSH 注册、启动行为、打包配置 | `index.js`、`cordis.patch.yml`、`package.json` |
 | 浏览器入口、页面和组件、样式、字典 | `src/client/`，其中 `index.ts` 注册 DSH slot，`skills/`、`sync/`、`plugins/` 维护各页面 |
-| 客户端构建和包级展示资源 | `scripts/build.mjs`、`tsconfig.json`、`package-lock.json`、`locale/`、`icon.svg`、`icon-dark.svg` |
+| 客户端构建和包级展示资源 | `scripts/build.mjs`、`tsconfig.json`、`locale/`、`icon.svg`、`icon-dark.svg` |
+| npm 发布 | `scripts/release.mjs`、`package.json`、`package-lock.json` |
 | 技能扫描、设置、文件改写和个人库元数据 | `lib/core.js` |
 | 技能收藏安装、客户端扫描和分发 | `lib/catalog.js`、`lib/targets.js` |
 | Git 同步和换机恢复 | `lib/sync.js` |
 | 插件清单、收藏、分发和适配 | `lib/plugins.js`、`lib/plugin-delivery.js` |
 | 面板 HTTP 接口与对话工具 | `lib/routes.js`、`lib/tool.js` |
-| 自动验收与文档 | `test/`、`AGENTS.md`、`README.md`、`README.en.md`、`PLUGIN.md` |
+| 自动验收与文档 | `test/`、`AGENTS.md`、`README.md`、`README.zh-CN.md`、`PLUGIN.md`、`PLUGIN.zh-CN.md` |
 | DSH 窗口验收与功能地图 | `.cursor/skills/verify-skill-manager/` |
 
 ## 启动与打包
 
 在源码仓库根目录运行 `npm ci` 和 `npm run build`，然后运行 `dsh plugin --profile desktop add .`。在该 profile 的侧栏打开 **我的技能**。Host 入口为 `index.js`，DSH 按 `./client` 导出加载生成的 `dist/client.js`。修改 TSX 或 CSS 后重新构建。
-
-发版时在 `package.json` 更新版本，运行下方验收，然后用 `npm whoami --registry=https://registry.npmjs.org/` 确认账号为 `zhyq0826`，再执行 `npm publish`。发布前会自动运行测试。
 
 ## 验收
 
@@ -58,4 +57,4 @@ npm run pack:check
 
 `npm test` 先做 TypeScript 检查和客户端构建，再运行测试。打包清单应包含 `index.js`、`dist/client.js`、`lib/`、`locale/`、`cordis.patch.yml`、图标和文档。
 
-若改动涉及搜索、分发或 Git 同步，按[窗口验收技能](.cursor/skills/verify-skill-manager/SKILL.md)运行对应场景。其他面板行为在测试 profile 中打开 **我的技能**，按[操作指南](PLUGIN.md)验证受影响的流程。
+若改动涉及搜索、分发或 Git 同步，按[窗口验收技能](.cursor/skills/verify-skill-manager/SKILL.md)运行对应场景。其他面板行为在测试 profile 中打开 **我的技能**，按[操作指南](PLUGIN.zh-CN.md)验证受影响的流程。

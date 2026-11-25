@@ -1,6 +1,8 @@
 # Using the skill library
 
-Open **My skills** in the DSH sidebar. For installation, see the [README](README.en.md).
+[简体中文](PLUGIN.zh-CN.md)
+
+Open **My skills** in the DSH sidebar. For installation, see the [README](README.md).
 
 ## Set up a personal library
 

@@ -28,9 +28,10 @@
     "cordis.patch.yml",
     "icon.svg",
     "README.md",
-    "README.en.md",
+    "README.zh-CN.md",
     "AGENTS.md",
     "PLUGIN.md",
+    "PLUGIN.zh-CN.md",
     "LICENSE",
     "icon-dark.svg"
   ],
@@ -40,7 +41,8 @@
     "prepack": "npm run build",
     "test": "node --test test/*.test.js",
     "prepublishOnly": "npm test",
-    "pack:check": "npm pack --dry-run"
+    "pack:check": "npm pack --dry-run",
+    "release": "node scripts/release.mjs"
   },
   "dsh": {
     "bundle": {
