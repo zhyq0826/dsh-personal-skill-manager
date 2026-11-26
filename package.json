@@ -1,6 +1,6 @@
 {
   "name": "@zhyq0826/dsh-personal-skill-manager",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Personal skill library for DeepSeek Harness. Written skills live in skills/ and are distributed; favorites store only community source metadata.",
   "type": "module",
   "license": "Apache-2.0",
